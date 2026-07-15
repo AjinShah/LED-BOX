@@ -1,329 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DeskMate Core Controller Hub</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #0d0e12;
-      color: #e2e8f0;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-    .custom-gradient {
-      background: radial-gradient(circle at top left, #1e1b4b, #0d0e12 60%);
-    }
-    .status-pulse {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeskMate Controller</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #121212;
+            color: #f5f5f5;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        button:active { background: #0056b3; }
+        .control-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        #status {
+            color: #ff453a;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
 </head>
-<body class="custom-gradient min-h-screen p-4 md:p-8">
-  <div class="max-w-4xl mx-auto space-y-6">
+<body>
+
+<div class="container">
+    <h2>DeskMate Controller</h2>
+    <p>Control screen layouts and styling directly over BLE</p>
     
-    <!-- HEADER BAR -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-800 gap-4">
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight text-white">DeskMate BLE Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-1">Platform Architecture: Web Bluetooth (FSM Control Protocol v1.4)</p>
-      </div>
-      <button id="connectBtn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white font-semibold rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-        <span id="connIndicator" class="w-2 h-2 rounded-full bg-red-500"></span>
-        <span id="connText">Scan & Connect</span>
-      </button>
-    </header>
+    <button id="connectBtn" onclick="connectBLE()">Connect to DeskMate</button>
+    <div id="status">Disconnected</div>
 
-    <!-- DEVICE METRICS OVERLAY -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      <!-- CONTROLS & COMMAND CENTER -->
-      <section class="md:col-span-2 space-y-6">
-        
-        <!-- MODULE & MODE SELECTOR -->
-        <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-4">
-          <h2 class="text-lg font-semibold text-white">Select Active Mode Module</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <button onclick="changeMode(0)" class="mode-btn p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-xl transition text-sm font-medium border border-transparent">CLOCK</button>
-            <button onclick="changeMode(1)" class="mode-btn p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-xl transition text-sm font-medium border border-transparent">POMODORO</button>
-            <button onclick="changeMode(2)" class="mode-btn p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-xl transition text-sm font-medium border border-transparent">STOPWATCH</button>
-            <button onclick="changeMode(3)" class="mode-btn p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-xl transition text-sm font-medium border border-transparent">WEATHER</button>
-            <button onclick="changeMode(4)" class="mode-btn p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-xl transition text-sm font-medium border border-transparent">TICKER</button>
-            <button onclick="changeMode(5)" class="mode-btn p-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-xl transition text-sm font-medium border border-transparent">GAME RUN</button>
-          </div>
-        </div>
+    <hr style="border-color: #333; margin: 20px 0;">
 
-        <!-- CHROMATIC LIGHTING DESIGN WHEEL -->
-        <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-4">
-          <h2 class="text-lg font-semibold text-white">Color Profile Master Engine</h2>
-          <div class="flex items-center gap-6">
-            <div class="relative w-24 h-24 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center">
-              <input type="color" id="colorPicker" value="#00ffcc" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-              <div id="colorDisplay" class="w-16 h-16 rounded-full shadow-inner" style="background-color: #00ffcc;"></div>
-            </div>
-            <div class="flex-1 space-y-2">
-              <p class="text-sm text-slate-300">Set the active lighting hex value dynamic override. The RGB vector is parsed upstream instantly.</p>
-              <div class="text-xs font-mono text-slate-500" id="hexString">HEX Code: #00FFCC</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- INTEGRATION SECTIONS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <!-- POMODORO CONTROLS -->
-          <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-4">
-            <h3 class="font-medium text-white">Pomodoro Master Interval</h3>
-            <div class="space-y-3">
-              <label class="text-xs text-slate-400 block">Set active duration (Minutes)</label>
-              <input type="number" id="pomoMinutes" value="25" min="1" max="99" class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-white text-sm focus:outline-none focus:border-indigo-500">
-              <button onclick="pushPomoConfig()" class="w-full py-2 bg-indigo-600/80 hover:bg-indigo-600 transition text-white text-sm rounded-lg font-medium">Push Configuration</button>
-            </div>
-          </div>
-
-          <!-- MANUAL TICKER PUSH -->
-          <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-4">
-            <h3 class="font-medium text-white">Custom Ticker Feed Overrides</h3>
-            <div class="space-y-3">
-              <label class="text-xs text-slate-400 block">Scroll Message Buffer</label>
-              <input type="text" id="customTickerText" value="DESKMATE READY." class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-white text-sm focus:outline-none focus:border-indigo-500">
-              <button onclick="pushTickerString()" class="w-full py-2 bg-emerald-600/80 hover:bg-emerald-600 transition text-white text-sm rounded-lg font-medium">Broadcast String</button>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- SYSTEM INTELLIGENCE & TELEMETRY -->
-      <aside class="space-y-6">
-        <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-4">
-          <h2 class="text-lg font-semibold text-white">API Integration Feeds</h2>
-          
-          <!-- WEATHER DATA SYNC -->
-          <div class="p-4 bg-slate-800/30 rounded-xl border border-slate-800 space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-semibold text-slate-400">OPENWEATHER API STREAM</span>
-              <span class="w-2 h-2 rounded-full bg-emerald-500 status-pulse"></span>
-            </div>
-            <div class="text-sm font-semibold text-white" id="apiWeather">Temp: Fetching...</div>
-            <button onclick="fetchAndPushWeather()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 transition text-xs rounded-lg text-slate-300 border border-slate-700">Fetch & Sync Live Data</button>
-          </div>
-
-          <!-- GOLD INDEX DATA SYNC -->
-          <div class="p-4 bg-slate-800/30 rounded-xl border border-slate-800 space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-semibold text-slate-400">GOLD INDEX KERALA FEED</span>
-              <span class="w-2 h-2 rounded-full bg-amber-500 status-pulse"></span>
-            </div>
-            <div class="text-sm font-semibold text-white" id="apiGold">Rate: Fetching...</div>
-            <button onclick="fetchAndPushGold()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 transition text-xs rounded-lg text-slate-300 border border-slate-700">Query Spot Rates</button>
-          </div>
-        </div>
-
-        <!-- BACKGROUND TELEMETRY AND DAEMONS -->
-        <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3 text-xs">
-          <h3 class="font-semibold text-slate-300">Daemon Log Manager</h3>
-          <div id="systemLog" class="h-32 overflow-y-auto bg-slate-950 p-3 rounded-lg font-mono text-[10px] leading-relaxed text-emerald-400 space-y-1">
-            <div>[DAEMON] Awaiting hardware Bluetooth initiation...</div>
-          </div>
-        </div>
-      </aside>
-
+    <div class="control-group">
+        <label for="screenSelect">Select Screen</label>
+        <select id="screenSelect" onchange="sendState()" disabled>
+            <option value="0">Clock (24hr)</option>
+            <option value="1">Date (16 July)</option>
+        </select>
     </div>
-  </div>
 
-  <!-- CONTROL SCRIPT LOGIC ENGINE -->
-  <script>
-    const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
-    const CHAR_UUID    = "4fa10002-e89b-4a9e-912c-21a7420896aa";
+    <div class="control-group">
+        <label for="colorSelect">Screen Accent Color</label>
+        <select id="colorSelect" onchange="sendState()" disabled>
+            <option value="0">Default (White)</option>
+            <option value="1">Crimson Red</option>
+            <option value="2">Emerald Green</option>
+            <option value="3">Electric Blue</option>
+        </select>
+    </div>
+</div>
 
-    let bleDevice = null;
-    let bleCharacteristic = null;
-    let clockSyncInterval = null;
-    let selectedColor = { r: 0, g: 255, b: 204 };
+<script>
+const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const CONTROL_CHAR_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
-    // Console Log Daemon Pipeline
-    function log(message) {
-      const container = document.getElementById("systemLog");
-      const block = document.createElement("div");
-      block.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-      container.appendChild(block);
-      container.scrollTop = container.scrollHeight;
-    }
+let device = null;
+let controlCharacteristic = null;
 
-    // Connect event handler
-    document.getElementById("connectBtn").addEventListener("click", async () => {
-      if (bleDevice && bleDevice.gatt.connected) {
-        disconnect();
-        return;
-      }
+async function connectBLE() {
+    const statusDiv = document.getElementById("status");
+    statusDiv.textContent = "Connecting...";
+    statusDiv.style.color = "#ffd60a";
 
-      try {
-        log("Requesting DeskMate Bluetooth node...");
-        bleDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ name: "DeskMate" }],
-          optionalServices: [SERVICE_UUID]
+    try {
+        device = await navigator.bluetooth.requestDevice({
+            filters: [{ name: "DeskMate-v2" }],
+            optionalServices: [SERVICE_UUID]
         });
 
-        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
-
-        log("Connecting to GATT infrastructure...");
-        const server = await bleDevice.gatt.connect();
-
-        log("Locating primary DeskMate service...");
+        const server = await device.gatt.connect();
         const service = await server.getPrimaryService(SERVICE_UUID);
+        controlCharacteristic = await service.getCharacteristic(CONTROL_CHAR_UUID);
 
-        log("Acquiring execution stream characteristics...");
-        bleCharacteristic = await service.getCharacteristic(CHAR_UUID);
+        statusDiv.textContent = "Connected!";
+        statusDiv.style.color = "#30d158";
+        document.getElementById("connectBtn").style.display = "none";
+        document.getElementById("screenSelect").disabled = false;
+        document.getElementById("colorSelect").disabled = false;
 
-        updateConnectionUI(true);
-        log("Connection finalized successfully.");
-
-        // Spawn time-sync daemons
-        startTimeSyncDaemon();
-        // Load mock dynamic APIs on connect
-        fetchAndPushWeather();
-        fetchAndPushGold();
-
-      } catch (err) {
-        log(`CRITICAL INTERACTION ERROR: ${err.message}`);
-        updateConnectionUI(false);
-      }
-    });
-
-    function disconnect() {
-      if (bleDevice && bleDevice.gatt.connected) {
-        log("Closing active GATT channels...");
-        bleDevice.gatt.disconnect();
-      }
+        device.addEventListener('gattserverdisconnected', onDisconnected);
+    } catch (error) {
+        console.error(error);
+        statusDiv.textContent = "Connection Failed";
+        statusDiv.style.color = "#ff453a";
     }
+}
 
-    function onDisconnected() {
-      updateConnectionUI(false);
-      log("Connection closed by peripheral.");
-      stopTimeSyncDaemon();
+function onDisconnected() {
+    document.getElementById("status").textContent = "Disconnected";
+    document.getElementById("status").style.color = "#ff453a";
+    document.getElementById("connectBtn").style.display = "block";
+    document.getElementById("screenSelect").disabled = true;
+    document.getElementById("colorSelect").disabled = true;
+}
+
+async function sendState() {
+    if (!controlCharacteristic) return;
+
+    const screenVal = parseInt(document.getElementById("screenSelect").value, 10);
+    const colorVal = parseInt(document.getElementById("colorSelect").value, 10);
+
+    // Build the 2-byte command: [Screen, Color]
+    const payload = new Uint8Array([screenVal, colorVal]);
+
+    try {
+        await controlCharacteristic.writeValue(payload);
+        console.log(`Sent Command: Screen ${screenVal}, Color ${colorVal}`);
+    } catch (error) {
+        console.error("Write failed: ", error);
     }
-
-    function updateConnectionUI(connected) {
-      const text = document.getElementById("connText");
-      const indicator = document.getElementById("connIndicator");
-      if (connected) {
-        text.textContent = "Disconnect";
-        indicator.className = "w-2 h-2 rounded-full bg-emerald-400 status-pulse";
-      } else {
-        text.textContent = "Scan & Connect";
-        indicator.className = "w-2 h-2 rounded-full bg-red-500";
-      }
-    }
-
-    // Color conversion
-    document.getElementById("colorPicker").addEventListener("input", (e) => {
-      const val = e.target.value;
-      document.getElementById("colorDisplay").style.backgroundColor = val;
-      document.getElementById("hexString").textContent = `HEX Code: ${val.toUpperCase()}`;
-      
-      const r = parseInt(val.substr(1, 2), 16);
-      const g = parseInt(val.substr(3, 2), 16);
-      const b = parseInt(val.substr(5, 2), 16);
-      selectedColor = { r, g, b };
-    });
-
-    // Write binary payloads to characteristic
-    async function sendPayload(modeId, r, g, b, textString = "") {
-      if (!bleCharacteristic) {
-        log("Write attempted while interface offline.");
-        return;
-      }
-
-      const encoder = new TextEncoder();
-      const stringBytes = encoder.encode(textString);
-      const payload = new Uint8Array(4 + stringBytes.length);
-      
-      payload[0] = modeId;
-      payload[1] = r;
-      payload[2] = g;
-      payload[3] = b;
-      payload.set(stringBytes, 4);
-
-      try {
-        await bleCharacteristic.writeValueWithoutResponse(payload);
-      } catch (err) {
-        log(`WRITE RUNTIME ERROR: ${err.message}`);
-      }
-    }
-
-    // Mode Transitions
-    function changeMode(modeIdx) {
-      log(`Switching functional layout target: Mode ID [${modeIdx}]`);
-      sendPayload(modeIdx, selectedColor.r, selectedColor.g, selectedColor.b);
-    }
-
-    // Push Config Modules
-    function pushPomoConfig() {
-      const mins = document.getElementById("pomoMinutes").value;
-      log(`Pushing custom Pomodoro interval: ${mins} mins`);
-      sendPayload(1, selectedColor.r, selectedColor.g, selectedColor.b, String(mins));
-    }
-
-    function pushTickerString() {
-      const val = document.getElementById("customTickerText").value;
-      log(`Broadcasting new stream ticker data string: "${val}"`);
-      sendPayload(4, selectedColor.r, selectedColor.g, selectedColor.b, val);
-    }
-
-    // Automated time sync daemon logic loop
-    function startTimeSyncDaemon() {
-      if (clockSyncInterval) clearInterval(clockSyncInterval);
-      
-      const syncTime = () => {
-        const now = new Date();
-        const timeStr = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const dateStr = `${months[now.getMonth()]} ${now.getDate()}`;
-        
-        // Mode 0 = Time Sync
-        sendPayload(0, selectedColor.r, selectedColor.g, selectedColor.b, `${timeStr}|${dateStr}`);
-      };
-
-      syncTime(); // Immediate run
-      clockSyncInterval = setInterval(syncTime, 10000); // Pulse every 10 seconds
-      log("Clock Time Sync Daemon spawned.");
-    }
-
-    function stopTimeSyncDaemon() {
-      if (clockSyncInterval) {
-        clearInterval(clockSyncInterval);
-        clockSyncInterval = null;
-        log("Clock Time Sync Daemon terminated.");
-      }
-    }
-
-    // Mock API implementations for external data pipelines
-    function fetchAndPushWeather() {
-      log("Querying OpenWeatherMap integration proxy...");
-      // Simulate real OpenWeatherMap API returns
-      setTimeout(() => {
-        const fakeTemp = "28 C";
-        const fakeCond = "RAINY";
-        document.getElementById("apiWeather").textContent = `Temp: ${fakeTemp} - ${fakeCond}`;
-        log(`Weather pipeline complete: Push sync: Temp: ${fakeTemp} | Status: ${fakeCond}`);
-        sendPayload(3, selectedColor.r, selectedColor.g, selectedColor.b, `${fakeTemp}|${fakeCond}`);
-      }, 1200);
-    }
-
-    function fetchAndPushGold() {
-      log("Querying Gold Index spot rates (Kerala Hub)...");
-      setTimeout(() => {
-        const rate22K = 13160; // Actual spot rate in July 2026
-        document.getElementById("apiGold").textContent = `22K Gold: Rs ${rate22K.toLocaleString()}/g`;
-        const textPayload = `GOLD IN KERALA: 22K - RS ${rate22K}/G`;
-        log(`Gold rate pipeline complete. Transmitted scroll override.`);
-        sendPayload(4, selectedColor.r, selectedColor.g, selectedColor.b, textPayload);
-      }, 1500);
-    }
-  </script>
+}
+</script>
 </body>
 </html>
