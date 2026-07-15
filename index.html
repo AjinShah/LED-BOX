@@ -5,57 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeskMate Controller</title>
     <style>
+        :root {
+            --bg: #09090b;
+            --card: #18181b;
+            --text: #fafafa;
+            --accent: #10b981;
+            --border: #27272a;
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #121212;
-            color: #f5f5f5;
-            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: #1e1e1e;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 380px;
+            padding: 24px;
+            text-align: center;
         }
         button {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
             width: 100%;
-            margin-bottom: 20px;
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
             font-weight: bold;
-        }
-        button:active { background: #0056b3; }
-        .control-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #aaa;
-            font-size: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 12px;
         }
         select {
             width: 100%;
-            padding: 10px;
-            background: #333;
-            color: white;
-            border: 1px solid #444;
+            background-color: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 15px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+        label {
+            display: block;
+            text-align: left;
+            font-size: 12px;
+            color: #a1a1aa;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: bold;
         }
         #status {
-            color: #ff453a;
             font-weight: bold;
-            margin-top: 15px;
+            margin-top: 10px;
+            color: #ef4444;
         }
     </style>
 </head>
@@ -63,90 +75,110 @@
 
 <div class="container">
     <h2>DeskMate Controller</h2>
-    <p>Control screen layouts and styling directly over BLE</p>
-    
+    <p style="color:#a1a1aa; font-size:14px; margin-top:-10px;">Rebuilt BLE control center</p>
+
     <button id="connectBtn" onclick="connectBLE()">Connect to DeskMate</button>
     <div id="status">Disconnected</div>
 
-    <hr style="border-color: #333; margin: 20px 0;">
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
 
-    <div class="control-group">
-        <label for="screenSelect">Select Screen</label>
-        <select id="screenSelect" onchange="sendState()" disabled>
-            <option value="0">Clock (24hr)</option>
-            <option value="1">Date (16 July)</option>
-        </select>
-    </div>
+    <label for="screenSelect">Active Screen</label>
+    <select id="screenSelect" onchange="sendConfigState()" disabled>
+        <option value="0">Clock Layout</option>
+        <option value="1">Date Layout</option>
+    </select>
 
-    <div class="control-group">
-        <label for="colorSelect">Screen Accent Color</label>
-        <select id="colorSelect" onchange="sendState()" disabled>
-            <option value="0">Default (White)</option>
-            <option value="1">Crimson Red</option>
-            <option value="2">Emerald Green</option>
-            <option value="3">Electric Blue</option>
-        </select>
-    </div>
+    <label for="colorSelect">Matrix Color</label>
+    <select id="colorSelect" onchange="sendConfigState()" disabled>
+        <option value="0">Default (Green-Cyan)</option>
+        <option value="1">Crimson Red</option>
+        <option value="2">Emerald Green</option>
+        <option value="3">Electric Blue</option>
+    </select>
+
+    <button id="syncTimeBtn" onclick="syncCurrentTime()" style="background:#3b82f6; color:white; margin-top:10px;" disabled>Sync Phone Time</button>
 </div>
 
 <script>
-const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-const CONTROL_CHAR_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
+const CHARACTERISTIC_UUID = "4fa10002-e89b-4a9e-912c-21a7420896aa";
 
 let device = null;
-let controlCharacteristic = null;
+let controlChar = null;
 
 async function connectBLE() {
-    const statusDiv = document.getElementById("status");
-    statusDiv.textContent = "Connecting...";
-    statusDiv.style.color = "#ffd60a";
+    const status = document.getElementById("status");
+    status.textContent = "Connecting...";
+    status.style.color = "#fbbf24";
 
     try {
         device = await navigator.bluetooth.requestDevice({
-            filters: [{ name: "DeskMate-v2" }],
+            filters: [{ name: "DeskMate" }],
             optionalServices: [SERVICE_UUID]
         });
 
         const server = await device.gatt.connect();
         const service = await server.getPrimaryService(SERVICE_UUID);
-        controlCharacteristic = await service.getCharacteristic(CONTROL_CHAR_UUID);
+        controlChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
-        statusDiv.textContent = "Connected!";
-        statusDiv.style.color = "#30d158";
+        status.textContent = "Connected!";
+        status.style.color = "#10b981";
+
         document.getElementById("connectBtn").style.display = "none";
         document.getElementById("screenSelect").disabled = false;
         document.getElementById("colorSelect").disabled = false;
+        document.getElementById("syncTimeBtn").disabled = false;
 
         device.addEventListener('gattserverdisconnected', onDisconnected);
     } catch (error) {
         console.error(error);
-        statusDiv.textContent = "Connection Failed";
-        statusDiv.style.color = "#ff453a";
+        status.textContent = "Connection Failed";
+        status.style.color = "#ef4444";
     }
 }
 
 function onDisconnected() {
     document.getElementById("status").textContent = "Disconnected";
-    document.getElementById("status").style.color = "#ff453a";
+    document.getElementById("status").style.color = "#ef4444";
     document.getElementById("connectBtn").style.display = "block";
     document.getElementById("screenSelect").disabled = true;
     document.getElementById("colorSelect").disabled = true;
+    document.getElementById("syncTimeBtn").disabled = true;
+    controlChar = null;
 }
 
-async function sendState() {
-    if (!controlCharacteristic) return;
+// Send layout state to screen: Format "S[ScreenID]C[ColorID]"
+async function sendConfigState() {
+    if (!controlChar) return;
 
-    const screenVal = parseInt(document.getElementById("screenSelect").value, 10);
-    const colorVal = parseInt(document.getElementById("colorSelect").value, 10);
-
-    // Build the 2-byte command: [Screen, Color]
-    const payload = new Uint8Array([screenVal, colorVal]);
+    const screenVal = document.getElementById("screenSelect").value;
+    const colorVal = document.getElementById("colorSelect").value;
+    const commandStr = `S${screenVal}C${colorVal}`;
 
     try {
-        await controlCharacteristic.writeValue(payload);
-        console.log(`Sent Command: Screen ${screenVal}, Color ${colorVal}`);
+        const encoder = new TextEncoder();
+        await controlChar.writeValue(encoder.encode(commandStr));
+        console.log(`Sent state packet: ${commandStr}`);
     } catch (error) {
-        console.error("Write failed: ", error);
+        console.error("Write error: ", error);
+    }
+}
+
+// Automatically formats current phone time to 4 digits and updates clock
+async function syncCurrentTime() {
+    if (!controlChar) return;
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}${minutes}`; // e.g. "1430"
+
+    try {
+        const encoder = new TextEncoder();
+        await controlChar.writeValue(encoder.encode(timeStr));
+        console.log(`Synchronized time packet: ${timeStr}`);
+    } catch (error) {
+        console.error("Sync error: ", error);
     }
 }
 </script>
