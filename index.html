@@ -170,19 +170,25 @@ async function syncCurrentTimeAndDate() {
 
     const now = new Date();
     
-    // 1. Hours and minutes (e.g. "1430")
+    // Hours & Minutes
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     
-    // 2. Day & Month Characters
+    // Calendar Day
     const day = String(now.getDate()).padStart(2, '0');
     
-    // Format Month code into a clean 2-letter layout (e.g. "JL" for July)
+    // Month Identifiers
     const monthNames = ["JA", "FE", "MR", "AP", "MY", "JN", "JL", "AU", "SE", "OC", "NV", "DE"];
     const month = monthNames[now.getMonth()];
     
-    // Final auto sync packet string payload: "T[HHMM]D[DDMM]" (e.g. "T1430D16JL")
-    const syncPayload = `T${hours}${minutes}D${day}${month}`;
+    // Weekday (0 = Sunday, 6 = Saturday)
+    const weekday = now.getDay(); 
+
+    // 4-Digit Year
+    const year = now.getFullYear();
+    
+    // Assemble complete sync sequence: T[HHMM]D[DDMM]W[Index]Y[YYYY]
+    const syncPayload = `T${hours}${minutes}D${day}${month}W${weekday}Y${year}`;
 
     try {
         const encoder = new TextEncoder();
