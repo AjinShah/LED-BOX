@@ -164,7 +164,7 @@
       try {
         log("Requesting DeskMate Bluetooth node...");
         bleDevice = await navigator.bluetooth.requestDevice({
-          filters: [{ name: "Matrix-Core-Hub" }],
+          filters: [{ name: "DeskMate" }],
           optionalServices: [SERVICE_UUID]
         });
 
