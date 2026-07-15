@@ -75,7 +75,7 @@
 
 <div class="container">
     <h2>DeskMate Controller</h2>
-    <p style="color:#a1a1aa; font-size:14px; margin-top:-10px;">Rebuilt BLE control center</p>
+    <p style="color:#a1a1aa; font-size:14px; margin-top:-10px;">Automatic Time & Date Sync Active</p>
 
     <button id="connectBtn" onclick="connectBLE()">Connect to DeskMate</button>
     <div id="status">Disconnected</div>
@@ -95,8 +95,6 @@
         <option value="2">Emerald Green</option>
         <option value="3">Electric Blue</option>
     </select>
-
-    <button id="syncTimeBtn" onclick="syncCurrentTime()" style="background:#3b82f6; color:white; margin-top:10px;" disabled>Sync Phone Time</button>
 </div>
 
 <script>
@@ -127,9 +125,12 @@ async function connectBLE() {
         document.getElementById("connectBtn").style.display = "none";
         document.getElementById("screenSelect").disabled = false;
         document.getElementById("colorSelect").disabled = false;
-        document.getElementById("syncTimeBtn").disabled = false;
 
         device.addEventListener('gattserverdisconnected', onDisconnected);
+
+        // --- AUTOMATIC TIME AND DATE SYNC ON CONNECTION ---
+        await syncCurrentTimeAndDate();
+
     } catch (error) {
         console.error(error);
         status.textContent = "Connection Failed";
@@ -143,11 +144,10 @@ function onDisconnected() {
     document.getElementById("connectBtn").style.display = "block";
     document.getElementById("screenSelect").disabled = true;
     document.getElementById("colorSelect").disabled = true;
-    document.getElementById("syncTimeBtn").disabled = true;
     controlChar = null;
 }
 
-// Send layout state to screen: Format "S[ScreenID]C[ColorID]"
+// Customizations sent to layout: Format "S[ScreenID]C[ColorID]"
 async function sendConfigState() {
     if (!controlChar) return;
 
@@ -164,21 +164,32 @@ async function sendConfigState() {
     }
 }
 
-// Automatically formats current phone time to 4 digits and updates clock
-async function syncCurrentTime() {
+// Automatic formatting and transmission of synchronization packets
+async function syncCurrentTimeAndDate() {
     if (!controlChar) return;
 
     const now = new Date();
+    
+    // 1. Hours and minutes (e.g. "1430")
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
-    const timeStr = `${hours}${minutes}`; // e.g. "1430"
+    
+    // 2. Day & Month Characters
+    const day = String(now.getDate()).padStart(2, '0');
+    
+    // Format Month code into a clean 2-letter layout (e.g. "JL" for July)
+    const monthNames = ["JA", "FE", "MR", "AP", "MY", "JN", "JL", "AU", "SE", "OC", "NV", "DE"];
+    const month = monthNames[now.getMonth()];
+    
+    // Final auto sync packet string payload: "T[HHMM]D[DDMM]" (e.g. "T1430D16JL")
+    const syncPayload = `T${hours}${minutes}D${day}${month}`;
 
     try {
         const encoder = new TextEncoder();
-        await controlChar.writeValue(encoder.encode(timeStr));
-        console.log(`Synchronized time packet: ${timeStr}`);
+        await controlChar.writeValue(encoder.encode(syncPayload));
+        console.log(`Auto Sync Executed -> Sent: ${syncPayload}`);
     } catch (error) {
-        console.error("Sync error: ", error);
+        console.error("Auto-sync error: ", error);
     }
 }
 </script>
