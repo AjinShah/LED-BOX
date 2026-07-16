@@ -111,10 +111,8 @@ async function connectBLE() {
 
     try {
         device = await navigator.bluetooth.requestDevice({
-            filters: [{ name: "DeskMate" }],
-            optionalServices: [SERVICE_UUID]
+            filters: [{ services: ['4fa10001-e89b-4a9e-912c-21a7420896aa'] }]
         });
-
         const server = await device.gatt.connect();
         const service = await server.getPrimaryService(SERVICE_UUID);
         controlChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
