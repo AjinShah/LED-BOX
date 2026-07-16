@@ -506,11 +506,11 @@
 
     <!-- Interface Logic & BLE Transmissions -->
     <script>
-        // Setup icons
+       // Setup icons
         lucide.createIcons();
 
-        // Constants matching production ESP32 UUIDs[cite: 1]
-        const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa"; // Must be lowercase for CoreBluetooth API[cite: 1]
+        // Constants matching production ESP32 UUIDs
+        const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";[cite: 1]
         const CHAR_UUID    = "4fa10002-e89b-4a9e-912c-21a7420896aa";[cite: 1]
 
         // Web BLE Hardware State variables
@@ -587,13 +587,11 @@
                         }
                     }
                 } else if (currentApp === 'weather') {
-                    // Draw a cute yellow sun and clouds symbol on the matrix
                     const sun = [0,1,0, 1,1,1, 0,1,0];
                     drawPattern(sun, 3, 1, 3, 3, '#ffcc00');
                     const clouds = [0,1,1,0, 1,1,1,1];
                     drawPattern(clouds, 8, 4, 4, 2, '#88ccff');
                 } else if (currentApp === 'visualizer') {
-                    // Random dynamic audio wave columns simulating a spectrum
                     for(let col = 0; col < 16; col++) {
                         const waveHeight = Math.floor(Math.random() * 7) + 1;
                         for(let row = 7; row >= 8 - waveHeight; row--) {
@@ -629,40 +627,47 @@
 
         updateDisplayLoop();
 
-        // BLE Core Connection & Communication Protocols
-        async function connectBLE() {
+        // 1. Force instant execution on tap/click to bypass the browser's User Gesture block
+        btnConnect.addEventListener('touchstart', triggerDirectConnect);
+        btnConnect.addEventListener('click', triggerDirectConnect);
+
+        async function triggerDirectConnect(e) {
+            e.preventDefault(); // Stop double-firing
+
+            if (gattDevice && gattDevice.gatt.connected) {
+                txtStatus.textContent = "Disconnecting...";
+                gattDevice.gatt.disconnect();
+                return;
+            }
+
             try {
-                txtStatus.textContent = "Searching for DeskMate...";
-                
-                // Crucial: iOS Web Bluetooth requires explicit matching filters[cite: 1]
+                txtStatus.textContent = "Opening system pairing window...";
+
+                // This must be the absolute first execution step to satisfy browser security
                 gattDevice = await navigator.bluetooth.requestDevice({
                     filters: [
-                        { services: [SERVICE_UUID] } // Requires exact match lowercase[cite: 1]
+                        { services: [SERVICE_UUID] }[cite: 1]
                     ]
                 });
 
                 txtStatus.textContent = "Establishing Connection...";
                 const server = await gattDevice.gatt.connect();
-                
                 const service = await server.getPrimaryService(SERVICE_UUID);[cite: 1]
                 gattCharacteristic = await service.getCharacteristic(CHAR_UUID);[cite: 1]
 
-                // Connection verified
+                // Success
                 btnConnect.classList.add('connected');
                 txtConnect.textContent = "Connected";
                 statusIndicator.classList.add('online');
-                txtStatus.textContent = "DeskMate Connected via BLE";
+                txtStatus.textContent = "DeskMate Connected!";
 
-                // Listen for physical device disconnection
                 gattDevice.addEventListener('gattserverdisconnected', onDisconnected);
-                
-                // Sync settings automatically upon connecting
                 syncDeskMate();
 
             } catch (err) {
-                console.error("Bluetooth pairing rejected/interrupted: ", err);
+                console.error("Pairing rejected:", err);
+                txtStatus.textContent = "Error: " + err.message;
                 onDisconnected();
-                txtStatus.textContent = "Connection Refused / Failed";
             }
         }
 
@@ -675,7 +680,6 @@
             gattCharacteristic = null;
         }
 
-        // Send high-speed commands safely using structured byte packets
         async function sendCommand(packet) {
             if (!gattCharacteristic) return;
             try {
@@ -686,8 +690,6 @@
             }
         }
 
-        // Packet Protocol Helpers
-        // Format: [Packet Type ID, Option A, Option B, Option C, Option D...]
         function hexToRgb(hex) {
             let val = parseInt(hex.replace('#', ''), 16);
             return [(val >> 16) & 255, (val >> 8) & 255, val & 255];
@@ -695,27 +697,11 @@
 
         async function syncDeskMate() {
             const [r, g, b] = hexToRgb(activeColor);
-            
-            // Sync Core Parameters Packet
-            // [0x01 = SET_COLOR, R, G, B]
             await sendCommand([0x01, r, g, b]);
-            
-            // [0x02 = SET_BRIGHTNESS, Val]
             await sendCommand([0x02, activeBrightness]);
-
-            // [0x03 = SET_APP, AppId (0: Clock, 1: Weather, 2: Visualizer, 3: Off)]
             const appMap = { "clock": 0, "weather": 1, "visualizer": 2, "off": 3 };
             await sendCommand([0x03, appMap[currentApp]]);
         }
-
-        // Action Handlers
-        btnConnect.addEventListener('click', () => {
-            if (!gattDevice) {
-                connectBLE();
-            } else {
-                gattDevice.gatt.disconnect();
-            }
-        });
 
         // App Selection
         document.querySelectorAll('.app-btn').forEach(btn => {
@@ -725,7 +711,6 @@
                 currentApp = btn.getAttribute('data-app');
                 updateDisplayLoop();
                 
-                // Send immediate BLE App Swap command
                 const appMap = { "clock": 0, "weather": 1, "visualizer": 2, "off": 3 };
                 sendCommand([0x03, appMap[currentApp]]);
             });
@@ -751,21 +736,16 @@
             sendCommand([0x01, r, g, b]);
         });
 
-        // Dynamic Brightness Adjust
+        // Brightness
         brightnessRange.addEventListener('input', (e) => {
             activeBrightness = parseInt(e.target.value);
             sendCommand([0x02, activeBrightness]);
         });
 
-        // Diagnostic Buttons
+        // Sync Time
         btnSyncTime.addEventListener('click', () => {
             const now = new Date();
-            const h = now.getHours();
-            const m = now.getMinutes();
-            const s = now.getSeconds();
-            
-            // [0x04 = SYNC_RTC_TIME, Hour, Min, Sec]
-            sendCommand([0x04, h, m, s]);
+            sendCommand([0x04, now.getHours(), now.getMinutes(), now.getSeconds()]);
             
             btnSyncTime.innerHTML = `<i data-lucide="check" style="width: 14px;"></i> Synced`;
             lucide.createIcons();
@@ -775,10 +755,9 @@
             }, 1200);
         });
 
+        // Test Tone
         btnTestBuzzer.addEventListener('click', () => {
-            // [0x05 = TEST_BUZZER_TONE] (Fires a 1-second clean diagnostic beep on GPIO 18)
             sendCommand([0x05, 0x01]);
-            
             btnTestBuzzer.innerHTML = `<i data-lucide="bell" style="width: 14px;"></i> Beeping`;
             lucide.createIcons();
             setTimeout(() => {
