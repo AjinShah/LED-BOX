@@ -3,199 +3,789 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeskMate Controller</title>
+    <title>DeskMate Companion</title>
+    <!-- Google Fonts & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg: #09090b;
-            --card: #18181b;
-            --text: #fafafa;
-            --accent: #10b981;
-            --border: #27272a;
+            --bg-gradient: linear-gradient(135deg, #090a0f 0%, #151821 100%);
+            --glass-card: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.07);
+            --glass-glow: rgba(0, 168, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #8a8f9d;
+            --accent-blue: #0088ff;
+            --accent-glow: #00d4ff;
+            --grid-led-off: #1b1e29;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background-color: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            width: 100%;
-            max-width: 380px;
-            padding: 24px;
-            text-align: center;
-        }
-        button {
-            width: 100%;
-            background-color: var(--accent);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 12px;
-        }
-        select {
-            width: 100%;
-            background-color: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 8px;
             padding: 10px;
-            font-size: 15px;
-            margin-bottom: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Responsive Mobile Container */
+        .app-container {
+            width: 100%;
+            max-width: 410px;
+            background: rgba(10, 11, 18, 0.85);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header Connection Bar */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-section h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #ffffff, #8a8f9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-section p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .btn-connect {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-connect.connected {
+            background: rgba(0, 136, 255, 0.15);
+            border-color: var(--accent-blue);
+            color: #39b5ff;
+            box-shadow: 0 0 10px rgba(0, 136, 255, 0.2);
+        }
+
+        .btn-connect:active {
+            transform: scale(0.95);
+        }
+
+        /* 3D Model Styled Hardware Mockup */
+        .hardware-viewport {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        /* 3D-like White Matte Chassis */
+        .physical-clock {
+            width: 280px;
+            height: 140px;
+            background: #fdfdfd;
+            border-radius: 24px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 3px 5px rgba(255, 255, 255, 0.5) inset,
+                0 -5px 10px rgba(0,0,0,0.1) inset;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Top Touch Indent Graphic */
+        .physical-clock::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Deep Matte Screen Bezel */
+        .bezel {
+            width: 100%;
+            height: 100%;
+            background: #08080c;
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+            border: 1px solid #1a1a24;
+        }
+
+        /* 16x8 Matrix Simulator */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .led {
+            aspect-ratio: 1;
+            background: var(--grid-led-off);
+            border-radius: 1px;
+            transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        /* UI Control Cards */
+        .control-card {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Quick-App Grid */
+        .apps-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .app-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.25s ease;
+        }
+
+        .app-btn i {
+            font-size: 18px;
+            transition: transform 0.25s ease;
+        }
+
+        .app-btn p {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .app-btn.active {
+            background: rgba(0, 136, 255, 0.08);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: 0 0 12px rgba(0, 136, 255, 0.15);
+        }
+
+        .app-btn.active i {
+            transform: scale(1.1);
+        }
+
+        /* Color Settings Section */
+        .settings-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .brightness-slider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.01);
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .slider-wrapper {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            height: 6px;
+            border-radius: 3px;
             outline: none;
         }
-        label {
-            display: block;
-            text-align: left;
-            font-size: 12px;
-            color: #a1a1aa;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            font-weight: bold;
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: transform 0.1s ease;
         }
-        #status {
-            font-weight: bold;
-            margin-top: 10px;
-            color: #ef4444;
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+
+        /* Preset Palette */
+        .color-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .palette {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .color-dot.active {
+            border-color: var(--text-primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        /* Input/Custom Picker Wrapper */
+        .picker-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--glass-border);
+            background: conic-gradient(red, yellow, green, cyan, blue, magenta, red);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .picker-btn input[type="color"] {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 48px;
+            height: 48px;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        /* Tone/Alert Testing Station */
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            border-radius: 16px;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Status Footer Badge */
+        .status-bar {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ff3344;
+            box-shadow: 0 0 6px #ff3344;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.online {
+            background: #00ff66;
+            box-shadow: 0 0 6px #00ff66;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>DeskMate Controller</h2>
-    <p style="color:#a1a1aa; font-size:14px; margin-top:-10px;">Automatic Time & Date Sync Active</p>
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="brand-section">
+                <h1>DeskMate</h1>
+                <p>v1.5 Companion</p>
+            </div>
+            <button class="btn-connect" id="btnConnect">
+                <i data-lucide="bluetooth"></i>
+                <span id="txtConnect">Connect</span>
+            </button>
+        </header>
 
-    <button id="connectBtn" onclick="connectBLE()">Connect to DeskMate</button>
-    <div id="status">Disconnected</div>
+        <!-- Dynamic Simulated Hardware Panel -->
+        <section class="hardware-viewport">
+            <div class="physical-clock">
+                <div class="bezel">
+                    <div class="matrix-grid" id="matrixGrid">
+                        <!-- Generates 128 elements dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+        <!-- Applications Grid Control -->
+        <section class="control-card">
+            <div class="section-title">
+                <i data-lucide="layout-grid" style="width: 14px;"></i> Active Mode
+            </div>
+            <div class="apps-row">
+                <button class="app-btn active" data-app="clock">
+                    <i data-lucide="clock"></i>
+                    <p>Clock</p>
+                </button>
+                <button class="app-btn" data-app="weather">
+                    <i data-lucide="cloud-sun"></i>
+                    <p>Weather</p>
+                </button>
+                <button class="app-btn" data-app="visualizer">
+                    <i data-lucide="activity"></i>
+                    <p>Music</p>
+                </button>
+                <button class="app-btn" data-app="off">
+                    <i data-lucide="power"></i>
+                    <p>Blank</p>
+                </button>
+            </div>
+        </section>
 
-    <label for="screenSelect">Active Screen</label>
-    <select id="screenSelect" onchange="sendConfigState()" disabled>
-        <option value="0">Clock Layout</option>
-        <option value="1">Date Layout</option>
-    </select>
+        <!-- Design Customization Settings -->
+        <section class="control-card">
+            <div class="section-title">
+                <i data-lucide="palette" style="width: 14px;"></i> Matrix Styling
+            </div>
+            <div class="settings-grid">
+                <!-- Color Selector -->
+                <div class="color-row">
+                    <span style="font-size: 13px; font-weight: 500; color: var(--text-secondary);">Solid Palette</span>
+                    <div class="palette">
+                        <div class="color-dot active" style="background: #ff3b30;" data-color="#ff3b30"></div>
+                        <div class="color-dot" style="background: #34c759;" data-color="#34c759"></div>
+                        <div class="color-dot" style="background: #007aff;" data-color="#007aff"></div>
+                        <div class="color-dot" style="background: #ffcc00;" data-color="#ffcc00"></div>
+                        <div class="picker-btn">
+                            <input type="color" id="customColorPicker" value="#ff3b30">
+                        </div>
+                    </div>
+                </div>
+                <!-- Brightness Slider -->
+                <div class="brightness-slider">
+                    <i data-lucide="sun" style="width: 16px; color: var(--text-secondary);"></i>
+                    <div class="slider-wrapper">
+                        <input type="range" id="brightnessRange" min="10" max="255" value="128">
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <label for="colorSelect">Matrix Color</label>
-    <select id="colorSelect" onchange="sendConfigState()" disabled>
-        <option value="0">Default (Green-Cyan)</option>
-        <option value="1">Crimson Red</option>
-        <option value="2">Emerald Green</option>
-        <option value="3">Electric Blue</option>
-    </select>
-</div>
+        <!-- Live Hardware Interactions (Transistor & Audio Proofing) -->
+        <section class="control-card">
+            <div class="section-title">
+                <i data-lucide="hammer" style="width: 14px;"></i> Diagnostic Tools
+            </div>
+            <div class="action-row">
+                <button class="action-btn" id="btnSyncTime">
+                    <i data-lucide="rotate-cw" style="width: 14px;"></i> Sync RTC
+                </button>
+                <button class="action-btn" id="btnTestBuzzer">
+                    <i data-lucide="volume-2" style="width: 14px;"></i> Test Tone
+                </button>
+            </div>
+        </section>
 
-<script>
-const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
-const CHARACTERISTIC_UUID = "4fa10002-e89b-4a9e-912c-21a7420896aa";
+        <!-- Status Bar -->
+        <footer class="status-bar">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span id="txtStatus">Hardware Disconnected</span>
+        </footer>
 
-let device = null;
-let controlChar = null;
+    </div>
 
-async function connectBLE() {
-    const status = document.getElementById("status");
-    status.textContent = "Connecting...";
-    status.style.color = "#fbbf24";
+    <!-- Interface Logic & BLE Transmissions -->
+    <script>
+        // Setup icons
+        lucide.createIcons();
 
-    try {
-        device = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ['4fa10001-e89b-4a9e-912c-21a7420896aa'] }]
+        // Constants matching production ESP32 UUIDs[cite: 1]
+        const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa"; // Must be lowercase for CoreBluetooth API[cite: 1]
+        const CHAR_UUID    = "4fa10002-e89b-4a9e-912c-21a7420896aa";[cite: 1]
+
+        // Web BLE Hardware State variables
+        let gattDevice = null;
+        let gattCharacteristic = null;
+        let activeColor = "#ff3b30";
+        let activeBrightness = 128;
+        let currentApp = "clock";
+        let matrixTimer = null;
+
+        // Dom Elements
+        const btnConnect = document.getElementById('btnConnect');
+        const txtConnect = document.getElementById('txtConnect');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const txtStatus = document.getElementById('txtStatus');
+        const matrixGrid = document.getElementById('matrixGrid');
+        const customColorPicker = document.getElementById('customColorPicker');
+        const brightnessRange = document.getElementById('brightnessRange');
+        const btnSyncTime = document.getElementById('btnSyncTime');
+        const btnTestBuzzer = document.getElementById('btnTestBuzzer');
+
+        // Init physical simulation matrix elements (16 columns * 8 rows = 128 LEDs)
+        function initMatrixSimulator() {
+            matrixGrid.innerHTML = '';
+            for (let i = 0; i < 128; i++) {
+                const led = document.createElement('div');
+                led.classList.add('led');
+                led.id = `led-${i}`;
+                matrixGrid.appendChild(led);
+            }
+        }
+        initMatrixSimulator();
+
+        // 16x8 Clock Digit Binary Matrix Layout (for simulator UI display)
+        const clockDigits = {
+            '0': [1,1,1, 1,0,1, 1,0,1, 1,0,1, 1,1,1],
+            '1': [0,1,0, 0,1,0, 0,1,0, 0,1,0, 0,1,0],
+            '2': [1,1,1, 0,0,1, 1,1,1, 1,0,0, 1,1,1],
+            '3': [1,1,1, 0,0,1, 1,1,1, 0,0,1, 1,1,1],
+            '4': [1,0,1, 1,0,1, 1,1,1, 0,0,1, 0,0,1],
+            '5': [1,1,1, 1,0,0, 1,1,1, 0,0,1, 1,1,1],
+            '6': [1,1,1, 1,0,0, 1,1,1, 1,0,1, 1,1,1],
+            '7': [1,1,1, 0,0,1, 0,0,1, 0,0,1, 0,0,1],
+            '8': [1,1,1, 1,0,1, 1,1,1, 1,0,1, 1,1,1],
+            '9': [1,1,1, 1,0,1, 1,1,1, 0,0,1, 1,1,1],
+            ':': [0, 0, 1, 0, 0, 0, 1, 0, 0] // 3x3 spacing colon
+        };
+
+        // Render simulated screen routines
+        function updateDisplayLoop() {
+            if (matrixTimer) clearInterval(matrixTimer);
+            
+            matrixTimer = setInterval(() => {
+                // Clear Matrix first
+                document.querySelectorAll('.led').forEach(el => {
+                    el.style.background = 'var(--grid-led-off)';
+                    el.style.boxShadow = 'none';
+                });
+
+                if (currentApp === 'clock') {
+                    const now = new Date();
+                    const hoursStr = String(now.getHours()).padStart(2, '0');
+                    const minsStr = String(now.getMinutes()).padStart(2, '0');
+                    const timeString = `${hoursStr}:${minsStr}`;
+                    
+                    let cursorX = 1; 
+                    for (let char of timeString) {
+                        if (char === ':') {
+                            drawPattern(clockDigits[':'], cursorX, 2, 3, 3);
+                            cursorX += 2;
+                        } else {
+                            drawPattern(clockDigits[char], cursorX, 1, 3, 5);
+                            cursorX += 4;
+                        }
+                    }
+                } else if (currentApp === 'weather') {
+                    // Draw a cute yellow sun and clouds symbol on the matrix
+                    const sun = [0,1,0, 1,1,1, 0,1,0];
+                    drawPattern(sun, 3, 1, 3, 3, '#ffcc00');
+                    const clouds = [0,1,1,0, 1,1,1,1];
+                    drawPattern(clouds, 8, 4, 4, 2, '#88ccff');
+                } else if (currentApp === 'visualizer') {
+                    // Random dynamic audio wave columns simulating a spectrum
+                    for(let col = 0; col < 16; col++) {
+                        const waveHeight = Math.floor(Math.random() * 7) + 1;
+                        for(let row = 7; row >= 8 - waveHeight; row--) {
+                            setLED(col, row, activeColor);
+                        }
+                    }
+                }
+            }, 500);
+        }
+
+        function drawPattern(array, startX, startY, width, height, customColor = null) {
+            let index = 0;
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (array[index] === 1) {
+                        setLED(startX + x, startY + y, customColor || activeColor);
+                    }
+                    index++;
+                }
+            }
+        }
+
+        function setLED(x, y, color) {
+            if (x >= 0 && x < 16 && y >= 0 && y < 8) {
+                const index = y * 16 + x;
+                const led = document.getElementById(`led-${index}`);
+                if (led) {
+                    led.style.background = color;
+                    led.style.boxShadow = `0 0 4px ${color}`;
+                }
+            }
+        }
+
+        updateDisplayLoop();
+
+        // BLE Core Connection & Communication Protocols
+        async function connectBLE() {
+            try {
+                txtStatus.textContent = "Searching for DeskMate...";
+                
+                // Crucial: iOS Web Bluetooth requires explicit matching filters[cite: 1]
+                gattDevice = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { services: [SERVICE_UUID] } // Requires exact match lowercase[cite: 1]
+                    ]
+                });
+
+                txtStatus.textContent = "Establishing Connection...";
+                const server = await gattDevice.gatt.connect();
+                
+                const service = await server.getPrimaryService(SERVICE_UUID);[cite: 1]
+                gattCharacteristic = await service.getCharacteristic(CHAR_UUID);[cite: 1]
+
+                // Connection verified
+                btnConnect.classList.add('connected');
+                txtConnect.textContent = "Connected";
+                statusIndicator.classList.add('online');
+                txtStatus.textContent = "DeskMate Connected via BLE";
+
+                // Listen for physical device disconnection
+                gattDevice.addEventListener('gattserverdisconnected', onDisconnected);
+                
+                // Sync settings automatically upon connecting
+                syncDeskMate();
+
+            } catch (err) {
+                console.error("Bluetooth pairing rejected/interrupted: ", err);
+                onDisconnected();
+                txtStatus.textContent = "Connection Refused / Failed";
+            }
+        }
+
+        function onDisconnected() {
+            btnConnect.classList.remove('connected');
+            txtConnect.textContent = "Connect";
+            statusIndicator.classList.remove('online');
+            txtStatus.textContent = "Hardware Disconnected";
+            gattDevice = null;
+            gattCharacteristic = null;
+        }
+
+        // Send high-speed commands safely using structured byte packets
+        async function sendCommand(packet) {
+            if (!gattCharacteristic) return;
+            try {
+                const dataBuffer = new Uint8Array(packet);
+                await gattCharacteristic.writeValue(dataBuffer);
+            } catch (err) {
+                console.error("Transmission error: ", err);
+            }
+        }
+
+        // Packet Protocol Helpers
+        // Format: [Packet Type ID, Option A, Option B, Option C, Option D...]
+        function hexToRgb(hex) {
+            let val = parseInt(hex.replace('#', ''), 16);
+            return [(val >> 16) & 255, (val >> 8) & 255, val & 255];
+        }
+
+        async function syncDeskMate() {
+            const [r, g, b] = hexToRgb(activeColor);
+            
+            // Sync Core Parameters Packet
+            // [0x01 = SET_COLOR, R, G, B]
+            await sendCommand([0x01, r, g, b]);
+            
+            // [0x02 = SET_BRIGHTNESS, Val]
+            await sendCommand([0x02, activeBrightness]);
+
+            // [0x03 = SET_APP, AppId (0: Clock, 1: Weather, 2: Visualizer, 3: Off)]
+            const appMap = { "clock": 0, "weather": 1, "visualizer": 2, "off": 3 };
+            await sendCommand([0x03, appMap[currentApp]]);
+        }
+
+        // Action Handlers
+        btnConnect.addEventListener('click', () => {
+            if (!gattDevice) {
+                connectBLE();
+            } else {
+                gattDevice.gatt.disconnect();
+            }
         });
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService(SERVICE_UUID);
-        controlChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
-        status.textContent = "Connected!";
-        status.style.color = "#10b981";
+        // App Selection
+        document.querySelectorAll('.app-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.app-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentApp = btn.getAttribute('data-app');
+                updateDisplayLoop();
+                
+                // Send immediate BLE App Swap command
+                const appMap = { "clock": 0, "weather": 1, "visualizer": 2, "off": 3 };
+                sendCommand([0x03, appMap[currentApp]]);
+            });
+        });
 
-        document.getElementById("connectBtn").style.display = "none";
-        document.getElementById("screenSelect").disabled = false;
-        document.getElementById("colorSelect").disabled = false;
+        // Color Palettes
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                dot.classList.add('active');
+                activeColor = dot.getAttribute('data-color');
+                customColorPicker.value = activeColor;
+                
+                const [r, g, b] = hexToRgb(activeColor);
+                sendCommand([0x01, r, g, b]);
+            });
+        });
 
-        device.addEventListener('gattserverdisconnected', onDisconnected);
+        customColorPicker.addEventListener('input', (e) => {
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+            activeColor = e.target.value;
+            const [r, g, b] = hexToRgb(activeColor);
+            sendCommand([0x01, r, g, b]);
+        });
 
-        // --- AUTOMATIC TIME AND DATE SYNC ON CONNECTION ---
-        await syncCurrentTimeAndDate();
+        // Dynamic Brightness Adjust
+        brightnessRange.addEventListener('input', (e) => {
+            activeBrightness = parseInt(e.target.value);
+            sendCommand([0x02, activeBrightness]);
+        });
 
-    } catch (error) {
-        console.error(error);
-        status.textContent = "Connection Failed";
-        status.style.color = "#ef4444";
-    }
-}
+        // Diagnostic Buttons
+        btnSyncTime.addEventListener('click', () => {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+            
+            // [0x04 = SYNC_RTC_TIME, Hour, Min, Sec]
+            sendCommand([0x04, h, m, s]);
+            
+            btnSyncTime.innerHTML = `<i data-lucide="check" style="width: 14px;"></i> Synced`;
+            lucide.createIcons();
+            setTimeout(() => {
+                btnSyncTime.innerHTML = `<i data-lucide="rotate-cw" style="width: 14px;"></i> Sync RTC`;
+                lucide.createIcons();
+            }, 1200);
+        });
 
-function onDisconnected() {
-    document.getElementById("status").textContent = "Disconnected";
-    document.getElementById("status").style.color = "#ef4444";
-    document.getElementById("connectBtn").style.display = "block";
-    document.getElementById("screenSelect").disabled = true;
-    document.getElementById("colorSelect").disabled = true;
-    controlChar = null;
-}
-
-// Customizations sent to layout: Format "S[ScreenID]C[ColorID]"
-async function sendConfigState() {
-    if (!controlChar) return;
-
-    const screenVal = document.getElementById("screenSelect").value;
-    const colorVal = document.getElementById("colorSelect").value;
-    const commandStr = `S${screenVal}C${colorVal}`;
-
-    try {
-        const encoder = new TextEncoder();
-        await controlChar.writeValue(encoder.encode(commandStr));
-        console.log(`Sent state packet: ${commandStr}`);
-    } catch (error) {
-        console.error("Write error: ", error);
-    }
-}
-
-// Automatic formatting and transmission of synchronization packets
-async function syncCurrentTimeAndDate() {
-    if (!controlChar) return;
-
-    const now = new Date();
-    
-    // Hours & Minutes
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    
-    // Calendar Day
-    const day = String(now.getDate()).padStart(2, '0');
-    
-    // Month Identifiers
-    const monthNames = ["JA", "FE", "MR", "AP", "MY", "JN", "JL", "AU", "SE", "OC", "NV", "DE"];
-    const month = monthNames[now.getMonth()];
-    
-    // Weekday (0 = Sunday, 6 = Saturday)
-    const weekday = now.getDay(); 
-
-    // 4-Digit Year
-    const year = now.getFullYear();
-    
-    // Assemble complete sync sequence: T[HHMM]D[DDMM]W[Index]Y[YYYY]
-    const syncPayload = `T${hours}${minutes}D${day}${month}W${weekday}Y${year}`;
-
-    try {
-        const encoder = new TextEncoder();
-        await controlChar.writeValue(encoder.encode(syncPayload));
-        console.log(`Auto Sync Executed -> Sent: ${syncPayload}`);
-    } catch (error) {
-        console.error("Auto-sync error: ", error);
-    }
-}
-</script>
+        btnTestBuzzer.addEventListener('click', () => {
+            // [0x05 = TEST_BUZZER_TONE] (Fires a 1-second clean diagnostic beep on GPIO 18)
+            sendCommand([0x05, 0x01]);
+            
+            btnTestBuzzer.innerHTML = `<i data-lucide="bell" style="width: 14px;"></i> Beeping`;
+            lucide.createIcons();
+            setTimeout(() => {
+                btnTestBuzzer.innerHTML = `<i data-lucide="volume-2" style="width: 14px;"></i> Test Tone`;
+                lucide.createIcons();
+            }, 1200);
+        });
+    </script>
 </body>
 </html>
