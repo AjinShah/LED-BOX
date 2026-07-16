@@ -846,12 +846,19 @@ async function triggerLightEffect(effectId) {
     let toggle = false;
     let hueOffset = 0;
 
-    if (effectId === 1) { // Strobe Light Mockup
+    if (effectId === 1) { // Multi-color Strobe Light Mockup
+        const strobeColors = ["#ef4444", "#10b981", "#3b82f6", "#eab308", "#ec4899", "#06b6d4"];
+        let colorIndex = 0;
         localMockupEffectInterval = setInterval(() => {
             toggle = !toggle;
-            screenEl.style.backgroundColor = toggle ? "#ffffff" : "#04060b";
+            if (toggle) {
+                screenEl.style.backgroundColor = strobeColors[colorIndex];
+                colorIndex = (colorIndex + 1) % strobeColors.length;
+            } else {
+                screenEl.style.backgroundColor = "#04060b";
+            }
         }, 80);
-    } 
+    }
     else if (effectId === 2) { // Police Siren Mockup
         localMockupEffectInterval = setInterval(() => {
             toggle = !toggle;
