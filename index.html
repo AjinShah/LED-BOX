@@ -3,629 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeskMate Companion</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>DeskMate Controller</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d0e12;
-            color: #f3f4f6;
-        }
-        
-        .glass-panel {
-            background: rgba(22, 24, 33, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(16, minmax(0, 1fr));
-            gap: 2px;
-            background: #050608;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #1f2937;
-        }
-
-        .led {
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background: var(--grid-led-off, #11131a);
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-        }
-
         :root {
-            --grid-led-off: #151821;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --text-color: #f8fafc;
+            --border-color: #334155;
         }
-
-        /* Customize scrollbars slightly */
-        ::-webkit-scrollbar {
-            width: 6px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
         }
-        ::-webkit-scrollbar-track {
-            background: #0d0e12;
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #272a37;
-            border-radius: 3px;
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            font-weight: 700;
         }
-
-        /* Pulse for online indicator */
-        .pulse-online {
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: pulse 1.8s infinite;
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            transition: opacity 0.2s;
         }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-            }
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
+        .btn:active {
+            opacity: 0.8;
         }
-
-        /* Active styling for app mode select buttons */
-        .app-btn.active {
-            background-color: rgba(59, 130, 246, 0.15);
-            border-color: #3b82f6;
-            color: #60a5fa;
+        .btn-disconnect {
+            background-color: #ef4444;
         }
-
-        /* Color selection active */
-        .color-dot.active {
-            outline: 2px solid #ffffff;
-            outline-offset: 2px;
+        .status-bar {
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .menu-item {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .menu-item i {
+            font-size: 20px;
+            color: #94a3b8;
+        }
+        .menu-item.active {
+            border-color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .menu-item.active i {
+            color: var(--accent-color);
+        }
+        .menu-item span {
+            font-size: 11px;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+        .menu-item.active span {
+            color: var(--text-color);
+        }
+        .config-section {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .config-section.visible {
+            display: block;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .flex-row {
+            display: flex;
+            gap: 8px;
+        }
+        .flex-row .btn {
+            margin-bottom: 0;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-start min-h-screen p-4 md:p-8">
+<body>
 
-    <div class="w-full max-w-md flex flex-col gap-5">
-        
-        <!-- Header Info panel -->
-        <div class="glass-panel rounded-2xl p-5 flex items-center justify-between shadow-xl">
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    DeskMate
-                </h1>
-                <p class="text-xs text-gray-400 mt-0.5">V1.6 COMPANION</p>
-            </div>
-            
-            <button id="btnConnect" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg transition duration-200">
-                <i data-lucide="bluetooth" class="w-4 h-4"></i>
-                <span id="txtConnect">Connect</span>
-            </button>
+<div class="container">
+    <h2>DeskMate Portal</h2>
+    <button id="connectBtn" class="btn"><i class="fa-solid fa-bluetooth"></i> Connect Device</button>
+    <div id="status" class="status-bar">Status: Disconnected</div>
+
+    <!-- Application Selection Grid -->
+    <div class="grid-menu">
+        <div class="menu-item active" onclick="switchMode(0, 'clockPanel')">
+            <i class="fa-regular fa-clock"></i>
+            <span>Clock</span>
         </div>
-
-        <!-- Hardware Display Simulator -->
-        <div class="glass-panel rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                    <span id="statusIndicator" class="w-2 h-2 rounded-full bg-red-500"></span>
-                    Live Simulator
-                </span>
-                <span id="txtStatus" class="text-xs text-gray-400 italic">Disconnected</span>
-            </div>
-
-            <!-- Virtual 16x8 matrix representation -->
-            <div class="relative bg-zinc-900 border-4 border-zinc-200 rounded-[2.5rem] p-4 flex items-center justify-center shadow-inner">
-                <div class="absolute -top-1 w-12 h-2 bg-zinc-400 rounded-b-md"></div>
-                <div id="matrixGrid" class="matrix-grid w-full aspect-[2/1]">
-                    <!-- Instantiated by JS -->
-                </div>
-            </div>
+        <div class="menu-item" onclick="switchMode(1, 'datePanel')">
+            <i class="fa-regular fa-calendar"></i>
+            <span>Calendar</span>
         </div>
-
-        <!-- System Controls -->
-        <div class="glass-panel rounded-2xl p-5 flex flex-col gap-5 shadow-xl">
-            
-            <!-- App selection options -->
-            <div>
-                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-3">Active Mode</label>
-                <div class="grid grid-cols-4 gap-2">
-                    <button class="app-btn active border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="clock">
-                        <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
-                        <span>Clock</span>
-                    </button>
-                    <button class="app-btn border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="date">
-                        <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
-                        <span>Date</span>
-                    </button>
-                    <button id="btnTriggerWeather" class="app-btn border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="weather">
-                        <i data-lucide="cloud-sun" class="w-4 h-4 text-emerald-400"></i>
-                        <span>Weather</span>
-                    </button>
-                    <button class="app-btn border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="off">
-                        <i data-lucide="eye-off" class="w-4 h-4 text-gray-500"></i>
-                        <span>Blank</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Custom Scrolling Text Input -->
-            <div id="textInputContainer" class="border-t border-zinc-800/60 pt-4">
-                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">Send Custom Text</label>
-                <div class="flex gap-2">
-                    <input type="text" id="customTextInput" placeholder="Enter custom message..." maxlength="64" class="flex-1 bg-zinc-900/60 border border-zinc-850 rounded-xl px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500">
-                    <button id="btnSendText" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition">
-                        Send
-                    </button>
-                </div>
-            </div>
-
-            <!-- Matrix styling parameters -->
-            <div class="border-t border-zinc-800/60 pt-4 flex flex-col gap-4">
-                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">Matrix Color Theme</label>
-                
-                <!-- Quick Palettes -->
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-400">Solid Palette</span>
-                    <div class="flex items-center gap-2">
-                        <button class="color-dot w-6 h-6 rounded-full bg-[#ff3b30] active" data-color="#ff3b30"></button>
-                        <button class="color-dot w-6 h-6 rounded-full bg-[#34c759]" data-color="#34c759"></button>
-                        <button class="color-dot w-6 h-6 rounded-full bg-[#007aff]" data-color="#007aff"></button>
-                        <button class="color-dot w-6 h-6 rounded-full bg-[#ffcc00]" data-color="#ffcc00"></button>
-                        
-                        <!-- Custom pick -->
-                        <div class="relative w-6 h-6 rounded-full overflow-hidden border border-zinc-700 flex items-center justify-center">
-                            <input type="color" id="customColorPicker" value="#ff3b30" class="absolute scale-150 cursor-pointer">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Custom Brightness -->
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between text-xs text-gray-400">
-                        <span>Intensity</span>
-                        <span id="brightnessVal">50%</span>
-                    </div>
-                    <input type="range" id="brightnessRange" min="1" max="255" value="128" class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
-                </div>
-            </div>
-
-            <!-- Diagnostics control block -->
-            <div class="border-t border-zinc-800/60 pt-4 flex flex-col gap-3">
-                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-1">Diagnostic Tools</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="btnSyncTime" class="py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-800/30 text-xs font-medium text-gray-300 flex items-center justify-center gap-1.5 transition">
-                        <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
-                        Sync RTC
-                    </button>
-                    <button id="btnTestBuzzer" class="py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-800/30 text-xs font-medium text-gray-300 flex items-center justify-center gap-1.5 transition">
-                        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
-                        Test Tone
-                    </button>
-                </div>
-            </div>
-
+        <div class="menu-item" onclick="switchMode(2, 'textPanel')">
+            <i class="fa-solid fa-font"></i>
+            <span>Text Msg</span>
         </div>
-
+        <div class="menu-item" onclick="switchMode(4, 'weatherPanel')">
+            <i class="fa-solid fa-cloud-sun-rain"></i>
+            <span>Weather</span>
+        </div>
+        <div class="menu-item" onclick="switchMode(5, 'timerPanel')">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <span>Timer</span>
+        </div>
+        <div class="menu-item" onclick="switchMode(3, 'blankPanel')">
+            <i class="fa-solid fa-moon"></i>
+            <span>Sleep</span>
+        </div>
     </div>
 
-    <!-- Interface Logic & BLE Transmissions -->
-    <script>
-        // Setup icons
-        lucide.createIcons();
+    <!-- Clock Control Module -->
+    <div id="clockPanel" class="config-section visible">
+        <label>System Color</label>
+        <input type="color" id="systemColor" value="#00ff64" style="width:100%; height:40px; border:none; background:none; cursor:pointer;" oninput="updateColor(this.value)">
+        <br><br>
+        <label>Panel Brightness</label>
+        <input type="range" min="5" max="150" value="35" style="width:100%;" oninput="updateBrightness(this.value)">
+    </div>
 
-        // Constants matching production ESP32 UUIDs
-        const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
-        const CHAR_UUID    = "4fa10002-e89b-4a9e-912c-21a7420896aa";
+    <!-- Calendar Module -->
+    <div id="datePanel" class="config-section">
+        <label>Calendar Sync</label>
+        <p style="margin: 0; color: #94a3b8; font-size: 13px;">Synchronizes local date automatically when active.</p>
+    </div>
 
-        // Web BLE Hardware State variables
-        let gattDevice = null;
-        let gattCharacteristic = null;
-        let activeColor = "#ff3b30";
-        let activeBrightness = 128;
-        let currentApp = "clock";
-        let matrixTimer = null;
-        let localScrollText = "DeskMate";
-        let localWeatherString = " +25C";
+    <!-- Text Module (Corrected layout: Only appears when Text tab is active) -->
+    <div id="textPanel" class="config-section">
+        <label>Custom Ticker Text</label>
+        <input type="text" id="scrollTextInput" placeholder="Enter message text...">
+        <button class="btn" onclick="sendScrollText()"><i class="fa-solid fa-paper-plane"></i> Push to Screen</button>
+    </div>
 
-        // Dom Elements
-        const btnConnect = document.getElementById('btnConnect');
-        const txtConnect = document.getElementById('txtConnect');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const txtStatus = document.getElementById('txtStatus');
-        const matrixGrid = document.getElementById('matrixGrid');
-        const customColorPicker = document.getElementById('customColorPicker');
-        const brightnessRange = document.getElementById('brightnessRange');
-        const brightnessVal = document.getElementById('brightnessVal');
-        const btnSyncTime = document.getElementById('btnSyncTime');
-        const btnTestBuzzer = document.getElementById('btnTestBuzzer');
-        
-        const customTextInput = document.getElementById('customTextInput');
-        const btnSendText = document.getElementById('btnSendText');
-        const btnTriggerWeather = document.getElementById('btnTriggerWeather');
+    <!-- Weather Module -->
+    <div id="weatherPanel" class="config-section">
+        <label>Temperature Descriptor</label>
+        <input type="text" id="weatherTemp" value="+25C kochi" placeholder="Format example: +25C kochi">
+        <button class="btn" onclick="sendWeather()"><i class="fa-solid fa-cloud-sun"></i> Send Weather</button>
+    </div>
 
-        // Init physical simulation matrix elements (16 columns * 8 rows = 128 LEDs)
-        function initMatrixSimulator() {
-            matrixGrid.innerHTML = '';
-            for (let i = 0; i < 128; i++) {
-                const led = document.createElement('div');
-                led.classList.add('led');
-                led.id = `led-${i}`;
-                matrixGrid.appendChild(led);
-            }
-        }
-        initMatrixSimulator();
+    <!-- Timer Module -->
+    <div id="timerPanel" class="config-section">
+        <label>Timer Duration (Minutes)</label>
+        <input type="number" id="timerMinutes" value="10" min="1" max="999">
+        <div class="flex-row">
+            <button class="btn" onclick="controlTimer(1)"><i class="fa-solid fa-hourglass-start"></i> Set Time</button>
+            <button class="btn" style="background-color: #22c55e;" onclick="controlTimer(2)"><i class="fa-solid fa-play"></i> Start</button>
+        </div>
+        <div class="flex-row" style="margin-top: 8px;">
+            <button class="btn" style="background-color: #eab308;" onclick="controlTimer(3)"><i class="fa-solid fa-pause"></i> Pause</button>
+            <button class="btn" style="background-color: #ef4444;" onclick="controlTimer(4)"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        </div>
+    </div>
 
-        // 16x8 Clock Digit Binary Matrix Layout (for simulator UI display)
-        const clockDigits = {
-            '0': [1,1,1, 1,0,1, 1,0,1, 1,0,1, 1,1,1],
-            '1': [0,1,0, 0,1,0, 0,1,0, 0,1,0, 0,1,0],
-            '2': [1,1,1, 0,0,1, 1,1,1, 1,0,0, 1,1,1],
-            '3': [1,1,1, 0,0,1, 1,1,1, 0,0,1, 1,1,1],
-            '4': [1,0,1, 1,0,1, 1,1,1, 0,0,1, 0,0,1],
-            '5': [1,1,1, 1,0,0, 1,1,1, 0,0,1, 1,1,1],
-            '6': [1,1,1, 1,0,0, 1,1,1, 1,0,1, 1,1,1],
-            '7': [1,1,1, 0,0,1, 0,0,1, 0,0,1, 0,0,1],
-            '8': [1,1,1, 1,0,1, 1,1,1, 1,0,1, 1,1,1],
-            '9': [1,1,1, 1,0,1, 1,1,1, 0,0,1, 1,1,1],
-            ':': [0, 0, 1, 0, 0, 0, 1, 0, 0] // 3x3 spacing colon
-        };
+    <!-- Sleep Module -->
+    <div id="blankPanel" class="config-section">
+        <label>Standby Mode</label>
+        <p style="margin:0; color: #94a3b8; font-size: 13px;">Hardware rendering pipeline paused.</p>
+    </div>
+</div>
 
-        // Partly cloudy 8x8 matrix design
-        const weatherIconPattern = [
-            0,0,1,1,1,0,0,0,  // Sun Rays top
-            0,1,1,1,1,1,0,0,  // Sun body peeking
-            1,1,1,1,1,1,1,0,  
-            0,0,1,1,1,1,1,1,  // Cloud overlay boundary
-            0,1,1,1,1,1,1,1,
-            1,1,1,1,1,1,1,1,
-            1,1,1,1,1,1,1,1,
-            0,1,1,1,1,1,1,0
-        ];
+<script>
+const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
+const CHARACTERISTIC_UUID = "4fa10002-e89b-4a9e-912c-21a7420896aa";
 
-        let simScrollX = 16;
-        // Render simulated screen routines
-        function updateDisplayLoop() {
-            if (matrixTimer) clearInterval(matrixTimer);
-            simScrollX = 16;
-            
-            matrixTimer = setInterval(() => {
-                // Clear Matrix first
-                document.querySelectorAll('.led').forEach(el => {
-                    el.style.background = 'var(--grid-led-off)';
-                    el.style.boxShadow = 'none';
-                });
+let bleDevice = null;
+let bleChar = null;
 
-                if (currentApp === 'clock') {
-                    const now = new Date();
-                    const hoursStr = String(now.getHours()).padStart(2, '0');
-                    const minsStr = String(now.getMinutes()).padStart(2, '0');
-                    const timeString = `${hoursStr}:${minsStr}`;
-                    
-                    let cursorX = 1; 
-                    for (let char of timeString) {
-                        if (char === ':') {
-                            drawPattern(clockDigits[':'], cursorX, 2, 3, 3);
-                            cursorX += 2;
-                        } else {
-                            drawPattern(clockDigits[char], cursorX, 1, 3, 5);
-                            cursorX += 4;
-                        }
-                    }
-                } else if (currentApp === 'date' || currentApp === 'text') {
-                    let displayStr = currentApp === 'date' ? 
-                        new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 
-                        localScrollText;
+document.getElementById('connectBtn').addEventListener('click', async () => {
+    if (bleDevice && bleDevice.gatt.connected) {
+        await bleDevice.gatt.disconnect();
+        onDisconnected();
+        return;
+    }
 
-                    let textWidth = displayStr.length * 5;
-                    simScrollX--;
-                    if (simScrollX < -textWidth) simScrollX = 16;
-
-                    // Show a simple scroll bar to mock hardware text activity
-                    for (let x = 0; x < 6; x++) {
-                        setLED(simScrollX + x, 3, activeColor);
-                    }
-                } else if (currentApp === 'weather') {
-                    // Draw simulated weather layout: Fixed partly cloudy icon left, scrolling text right
-                    let iconColors = [
-                        '#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00',
-                        '#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00',
-                        '#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff',
-                        '#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff'
-                    ];
-
-                    // Render static 8x8 icon on left half
-                    for (let y = 0; y < 8; y++) {
-                        for (let x = 0; x < 8; x++) {
-                            let idx = y * 8 + x;
-                            if (weatherIconPattern[idx] === 1) {
-                                let useColor = (y < 3) ? '#ffcc00' : '#ffffff'; // Sun gold, cloud white
-                                setLED(x, y, useColor);
-                            }
-                        }
-                    }
-
-                    // Render simulated sliding text on the remaining right half (columns 8 to 15)
-                    let displayStr = localWeatherString;
-                    let textWidth = displayStr.length * 5;
-                    simScrollX--;
-                    if (simScrollX < 8 - textWidth) simScrollX = 16;
-
-                    for (let x = 0; x < 4; x++) {
-                        setLED(simScrollX + x, 3, '#ffffff');
-                    }
-                }
-            }, 100);
-        }
-
-        function drawPattern(array, startX, startY, width, height, customColor = null) {
-            let index = 0;
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    if (array[index] === 1) {
-                        setLED(startX + x, startY + y, customColor || activeColor);
-                    }
-                    index++;
-                }
-            }
-        }
-
-        function setLED(x, y, color) {
-            if (x >= 0 && x < 16 && y >= 0 && y < 8) {
-                const index = y * 16 + x;
-                const led = document.getElementById(`led-${index}`);
-                if (led) {
-                    led.style.background = color;
-                    led.style.boxShadow = `0 0 4px ${color}`;
-                }
-            }
-        }
-
-        updateDisplayLoop();
-
-        // Bind Connections
-        btnConnect.addEventListener('touchstart', triggerDirectConnect);
-        btnConnect.addEventListener('click', triggerDirectConnect);
-
-        async function triggerDirectConnect(e) {
-            e.preventDefault();
-
-            if (gattDevice && gattDevice.gatt.connected) {
-                txtStatus.textContent = "Disconnecting...";
-                gattDevice.gatt.disconnect();
-                return;
-            }
-
-            try {
-                txtStatus.textContent = "Opening system pairing window...";
-
-                gattDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: [SERVICE_UUID] }]
-                });
-
-                txtStatus.textContent = "Establishing Connection...";
-                const server = await gattDevice.gatt.connect();
-                const service = await server.getPrimaryService(SERVICE_UUID);
-                gattCharacteristic = await service.getCharacteristic(CHAR_UUID);
-
-                btnConnect.classList.add('connected');
-                txtConnect.textContent = "Connected";
-                statusIndicator.classList.add('online');
-                statusIndicator.classList.add('pulse-online');
-                txtStatus.textContent = "DeskMate Connected!";
-
-                gattDevice.addEventListener('gattserverdisconnected', onDisconnected);
-                syncDeskMate();
-
-            } catch (err) {
-                console.error("Pairing rejected:", err);
-                txtStatus.textContent = "Error: " + err.message;
-                onDisconnected();
-            }
-        }
-
-        function onDisconnected() {
-            btnConnect.classList.remove('connected');
-            txtConnect.textContent = "Connect";
-            statusIndicator.classList.remove('online');
-            statusIndicator.classList.remove('pulse-online');
-            txtStatus.textContent = "Hardware Disconnected";
-            gattDevice = null;
-            gattCharacteristic = null;
-        }
-
-        async function sendCommand(packet) {
-            if (!gattCharacteristic) return;
-            try {
-                const dataBuffer = new Uint8Array(packet);
-                await gattCharacteristic.writeValue(dataBuffer);
-            } catch (err) {
-                console.error("Transmission error: ", err);
-            }
-        }
-
-        async function sendTextToDevice(text) {
-            if (!gattCharacteristic) return;
-            try {
-                const encoder = new TextEncoder();
-                const textBytes = encoder.encode(text);
-                const packet = new Uint8Array(1 + textBytes.length);
-                packet[0] = 0x06; 
-                packet.set(textBytes, 1);
-                await gattCharacteristic.writeValue(packet);
-            } catch (err) {
-                console.error("Failed to send text payload:", err);
-            }
-        }
-
-        // New helper to send dedicated Weather command (0x07)
-        async function sendWeatherToDevice(weatherConditionId, tempString) {
-            if (!gattCharacteristic) return;
-            try {
-                const encoder = new TextEncoder();
-                const tempBytes = encoder.encode(tempString);
-                const packet = new Uint8Array(2 + tempBytes.length);
-                packet[0] = 0x07; // Command 0x07
-                packet[1] = weatherConditionId; // Condition ID (e.g. 1 for sunny/partly cloudy)
-                packet.set(tempBytes, 2);
-                await gattCharacteristic.writeValue(packet);
-            } catch (err) {
-                console.error("Failed to send weather command:", err);
-            }
-        }
-
-        function hexToRgb(hex) {
-            let val = parseInt(hex.replace('#', ''), 16);
-            return [(val >> 16) & 255, (val >> 8) & 255, val & 255];
-        }
-
-        async function syncDeskMate() {
-            const [r, g, b] = hexToRgb(activeColor);
-            await sendCommand([0x01, r, g, b]);
-            await sendCommand([0x02, activeBrightness]);
-            const appMap = { "clock": 0, "date": 1, "text": 2, "off": 3, "weather": 4 };
-            await sendCommand([0x03, appMap[currentApp]]);
-        }
-
-        // App Selection (Modes)
-        document.querySelectorAll('.app-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn.id === "btnTriggerWeather") return; 
-                
-                document.querySelectorAll('.app-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentApp = btn.getAttribute('data-app');
-                updateDisplayLoop();
-                
-                const appMap = { "clock": 0, "date": 1, "text": 2, "off": 3 };
-                sendCommand([0x03, appMap[currentApp]]);
-            });
+    try {
+        bleDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [SERVICE_UUID] }],
+            optionalServices: [SERVICE_UUID]
         });
 
-        // Trigger Custom Text Sending
-        btnSendText.addEventListener('click', async () => {
-            const textValue = customTextInput.value.trim();
-            if (!textValue) return;
+        document.getElementById('status').innerText = "Connecting...";
+        const server = await bleDevice.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        bleChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
-            localScrollText = textValue;
-            currentApp = "text";
-            
-            document.querySelectorAll('.app-btn').forEach(b => b.classList.remove('active'));
-            updateDisplayLoop();
+        document.getElementById('status').innerText = "Connected to DeskMate";
+        document.getElementById('connectBtn').innerHTML = '<i class="fa-solid fa-unlink"></i> Disconnect';
+        document.getElementById('connectBtn').classList.add('btn-disconnect');
+        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
-            await sendCommand([0x03, 2]); 
-            await sendTextToDevice(textValue);
-        });
+        // Immediate Auto RTC Synchronization without user interaction
+        await syncRtcClock();
 
-        // Live Geolocation Weather Trigger
-        btnTriggerWeather.addEventListener('click', () => {
-            document.querySelectorAll('.app-btn').forEach(b => b.classList.remove('active'));
-            btnTriggerWeather.classList.add('active');
-            txtStatus.textContent = "Fetching GPS coordinates...";
+    } catch (err) {
+        console.error(err);
+        document.getElementById('status').innerText = "Connection Failed";
+    }
+});
 
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    
-                    txtStatus.textContent = "Getting weather data...";
-                    try {
-                        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-                        const weatherData = await weatherRes.json();
-                        const temp = Math.round(weatherData.current_weather.temperature);
-                        const code = weatherData.current_weather.weathercode;
+function onDisconnected() {
+    bleDevice = null;
+    bleChar = null;
+    document.getElementById('status').innerText = "Disconnected";
+    document.getElementById('connectBtn').innerHTML = '<i class="fa-solid fa-bluetooth"></i> Connect Device';
+    document.getElementById('connectBtn').classList.remove('btn-disconnect');
+}
 
-                        // Weather condition classification: 
-                        // 1 = Partly Cloudy, 2 = Cloudy/Fog, 3 = Rainy, 4 = Snowy, 0 = Sunny/Clear
-                        let conditionId = 1; // Default to partly cloudy
-                        if (code === 0) conditionId = 0; // Sunny
-                        else if (code >= 1 && code <= 3) conditionId = 1; // Partly Cloudy
-                        else if (code >= 45 && code <= 48) conditionId = 2; // Foggy/Cloudy
-                        else if (code >= 51 && code <= 67) conditionId = 3; // Rainy
-                        else if (code >= 80 && code <= 82) conditionId = 3; // Rain Showers
-                        else if (code >= 95) conditionId = 3; // Thunderstorm
+async function writeBLE(arrayBuffer) {
+    if (!bleChar) return;
+    try {
+        await bleChar.writeValueWithoutResponse(arrayBuffer);
+    } catch (e) {
+        console.error("Write error:", e);
+    }
+}
 
-                        const sign = temp > 0 ? "+" : "";
-                        const formattedTempString = ` ${sign}${temp}C`; 
+async function syncRtcClock() {
+    const now = new Date();
+    const packet = new Uint8Array([
+        0x04,
+        now.getHours(),
+        now.getMinutes(),
+        now.getSeconds()
+    ]);
+    await writeBLE(packet);
+}
 
-                        txtStatus.textContent = `Weather synced: ${temp}°C!`;
-                        localWeatherString = formattedTempString;
-                        currentApp = "weather";
-                        updateDisplayLoop();
+async function switchMode(modeId, panelId) {
+    // UI Panel switching state
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.config-section').forEach(sec => sec.classList.remove('visible'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById(panelId).classList.add('visible');
 
-                        // Send Command 0x07 directly over BLE to trigger dedicated weather mode
-                        await sendWeatherToDevice(conditionId, formattedTempString);
+    const packet = new Uint8Array([0x03, modeId]);
+    await writeBLE(packet);
+}
 
-                    } catch (err) {
-                        console.error(err);
-                        txtStatus.textContent = "Error parsing weather API.";
-                    }
-                },
-                (err) => {
-                    console.error(err);
-                    txtStatus.textContent = "Location Access Denied.";
-                }
-            );
-        });
+async function updateColor(hexColor) {
+    const r = parseInt(hexColor.substr(1, 2), 16);
+    const g = parseInt(hexColor.substr(3, 2), 16);
+    const b = parseInt(hexColor.substr(5, 2), 16);
+    const packet = new Uint8Array([0x01, r, g, b]);
+    await writeBLE(packet);
+}
 
-        // Color Palettes
-        document.querySelectorAll('.color-dot').forEach(dot => {
-            dot.addEventListener('click', () => {
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-                dot.classList.add('active');
-                activeColor = dot.getAttribute('data-color');
-                customColorPicker.value = activeColor;
-                
-                const [r, g, b] = hexToRgb(activeColor);
-                sendCommand([0x01, r, g, b]);
-            });
-        });
+async function updateBrightness(val) {
+    const packet = new Uint8Array([0x02, parseInt(val)]);
+    await writeBLE(packet);
+}
 
-        customColorPicker.addEventListener('input', (e) => {
-            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-            activeColor = e.target.value;
-            const [r, g, b] = hexToRgb(activeColor);
-            sendCommand([0x01, r, g, b]);
-        });
+async function sendScrollText() {
+    const textVal = document.getElementById('scrollTextInput').value;
+    const encoder = new TextEncoder();
+    const rawStrBytes = encoder.encode(textVal);
+    const packet = new Uint8Array(1 + rawStrBytes.length);
+    packet[0] = 0x06;
+    packet.set(rawStrBytes, 1);
+    await writeBLE(packet);
+}
 
-        // Brightness
-        brightnessRange.addEventListener('input', (e) => {
-            activeBrightness = parseInt(e.target.value);
-            const percentage = Math.round((activeBrightness / 255) * 100);
-            brightnessVal.textContent = `${percentage}%`;
-            sendCommand([0x02, activeBrightness]);
-        });
+async function sendWeather() {
+    const weatherString = document.getElementById('weatherTemp').value;
+    const encoder = new TextEncoder();
+    const textBytes = encoder.encode(weatherString);
+    const packet = new Uint8Array(2 + textBytes.length);
+    packet[0] = 0x07;
+    packet[1] = 0x01; // Sun + Cloud condition layer mask identifier
+    packet.set(textBytes, 2);
+    await writeBLE(packet);
+}
 
-        // Sync Time
-        btnSyncTime.addEventListener('click', () => {
-            const now = new Date();
-            sendCommand([0x04, now.getHours(), now.getMinutes(), now.getSeconds()]);
-            
-            btnSyncTime.innerHTML = `<i data-lucide="check" style="width: 14px;"></i> Synced`;
-            lucide.createIcons();
-            setTimeout(() => {
-                btnSyncTime.innerHTML = `<i data-lucide="rotate-cw" style="width: 14px;"></i> Sync RTC`;
-                lucide.createIcons();
-            }, 1200);
-        });
-
-        // Test Tone
-        btnTestBuzzer.addEventListener('click', () => {
-            sendCommand([0x05, 0x01]);
-            btnTestBuzzer.innerHTML = `<i data-lucide="bell" style="width: 14px;"></i> Beeping`;
-            lucide.createIcons();
-            setTimeout(() => {
-                btnTestBuzzer.innerHTML = `<i data-lucide="volume-2" style="width: 14px;"></i> Test Tone`;
-                lucide.createIcons();
-            }, 1200);
-        });
-    </script>
+async function controlTimer(actionCode) {
+    const totalMinutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+    const minHigh = (totalMinutes >> 8) & 0xFF;
+    const minLow = totalMinutes & 0xFF;
+    const packet = new Uint8Array([0x08, actionCode, minHigh, minLow, 0x00]); // [0x08, action, minsMSB, minsLSB, secs]
+    await writeBLE(packet);
+}
+</script>
 </body>
 </html>
