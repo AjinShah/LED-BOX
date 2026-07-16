@@ -102,7 +102,7 @@
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                     DeskMate
                 </h1>
-                <p class="text-xs text-gray-400 mt-0.5">V1.5 COMPANION</p>
+                <p class="text-xs text-gray-400 mt-0.5">V1.6 COMPANION</p>
             </div>
             
             <button id="btnConnect" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg transition duration-200">
@@ -156,7 +156,7 @@
                 </div>
             </div>
 
-            <!-- Custom Scrolling Text Input (Unified System) -->
+            <!-- Custom Scrolling Text Input -->
             <div id="textInputContainer" class="border-t border-zinc-800/60 pt-4">
                 <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">Send Custom Text</label>
                 <div class="flex gap-2">
@@ -169,7 +169,7 @@
 
             <!-- Matrix styling parameters -->
             <div class="border-t border-zinc-800/60 pt-4 flex flex-col gap-4">
-                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">Matrix Styling</label>
+                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">Matrix Color Theme</label>
                 
                 <!-- Quick Palettes -->
                 <div class="flex items-center justify-between">
@@ -233,6 +233,7 @@
         let currentApp = "clock";
         let matrixTimer = null;
         let localScrollText = "DeskMate";
+        let localWeatherString = " +25C";
 
         // Dom Elements
         const btnConnect = document.getElementById('btnConnect');
@@ -277,6 +278,18 @@
             ':': [0, 0, 1, 0, 0, 0, 1, 0, 0] // 3x3 spacing colon
         };
 
+        // Partly cloudy 8x8 matrix design
+        const weatherIconPattern = [
+            0,0,1,1,1,0,0,0,  // Sun Rays top
+            0,1,1,1,1,1,0,0,  // Sun body peeking
+            1,1,1,1,1,1,1,0,  
+            0,0,1,1,1,1,1,1,  // Cloud overlay boundary
+            0,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,
+            0,1,1,1,1,1,1,0
+        ];
+
         let simScrollX = 16;
         // Render simulated screen routines
         function updateDisplayLoop() {
@@ -306,29 +319,47 @@
                             cursorX += 4;
                         }
                     }
-                } else if (currentApp === 'date' || currentApp === 'text' || currentApp === 'weather') {
-                    // Simulate scrolling text
-                    let displayStr = "";
-                    if (currentApp === 'date') {
-                        const now = new Date();
-                        displayStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-                    } else if (currentApp === 'text') {
-                        displayStr = localScrollText;
-                    } else if (currentApp === 'weather') {
-                        displayStr = localScrollText; // Weather uses custom text engine to display data
-                    }
+                } else if (currentApp === 'date' || currentApp === 'text') {
+                    let displayStr = currentApp === 'date' ? 
+                        new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 
+                        localScrollText;
 
-                    // Standard text simulator approximation
                     let textWidth = displayStr.length * 5;
                     simScrollX--;
-                    if (simScrollX < -textWidth) {
-                        simScrollX = 16;
-                    }
+                    if (simScrollX < -textWidth) simScrollX = 16;
 
-                    // Show a simulated moving block to visualize the scrolling logic
+                    // Show a simple scroll bar to mock hardware text activity
                     for (let x = 0; x < 6; x++) {
                         setLED(simScrollX + x, 3, activeColor);
-                        setLED(simScrollX + x + 8, 4, activeColor);
+                    }
+                } else if (currentApp === 'weather') {
+                    // Draw simulated weather layout: Fixed partly cloudy icon left, scrolling text right
+                    let iconColors = [
+                        '#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00',
+                        '#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00','#ffcc00',
+                        '#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff',
+                        '#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff','#ffffff'
+                    ];
+
+                    // Render static 8x8 icon on left half
+                    for (let y = 0; y < 8; y++) {
+                        for (let x = 0; x < 8; x++) {
+                            let idx = y * 8 + x;
+                            if (weatherIconPattern[idx] === 1) {
+                                let useColor = (y < 3) ? '#ffcc00' : '#ffffff'; // Sun gold, cloud white
+                                setLED(x, y, useColor);
+                            }
+                        }
+                    }
+
+                    // Render simulated sliding text on the remaining right half (columns 8 to 15)
+                    let displayStr = localWeatherString;
+                    let textWidth = displayStr.length * 5;
+                    simScrollX--;
+                    if (simScrollX < 8 - textWidth) simScrollX = 16;
+
+                    for (let x = 0; x < 4; x++) {
+                        setLED(simScrollX + x, 3, '#ffffff');
                     }
                 }
             }, 100);
@@ -359,7 +390,7 @@
 
         updateDisplayLoop();
 
-        // 1. Force instant execution on tap/click to bypass browser security
+        // Bind Connections
         btnConnect.addEventListener('touchstart', triggerDirectConnect);
         btnConnect.addEventListener('click', triggerDirectConnect);
 
@@ -376,9 +407,7 @@
                 txtStatus.textContent = "Opening system pairing window...";
 
                 gattDevice = await navigator.bluetooth.requestDevice({
-                    filters: [
-                        { services: [SERVICE_UUID] }
-                    ]
+                    filters: [{ services: [SERVICE_UUID] }]
                 });
 
                 txtStatus.textContent = "Establishing Connection...";
@@ -422,18 +451,33 @@
             }
         }
 
-        // Helper to send text strings to ESP32 using command packet 0x06
         async function sendTextToDevice(text) {
             if (!gattCharacteristic) return;
             try {
                 const encoder = new TextEncoder();
                 const textBytes = encoder.encode(text);
                 const packet = new Uint8Array(1 + textBytes.length);
-                packet[0] = 0x06; // Command 0x06 (Set Scroll Text)
+                packet[0] = 0x06; 
                 packet.set(textBytes, 1);
                 await gattCharacteristic.writeValue(packet);
             } catch (err) {
                 console.error("Failed to send text payload:", err);
+            }
+        }
+
+        // New helper to send dedicated Weather command (0x07)
+        async function sendWeatherToDevice(weatherConditionId, tempString) {
+            if (!gattCharacteristic) return;
+            try {
+                const encoder = new TextEncoder();
+                const tempBytes = encoder.encode(tempString);
+                const packet = new Uint8Array(2 + tempBytes.length);
+                packet[0] = 0x07; // Command 0x07
+                packet[1] = weatherConditionId; // Condition ID (e.g. 1 for sunny/partly cloudy)
+                packet.set(tempBytes, 2);
+                await gattCharacteristic.writeValue(packet);
+            } catch (err) {
+                console.error("Failed to send weather command:", err);
             }
         }
 
@@ -446,14 +490,14 @@
             const [r, g, b] = hexToRgb(activeColor);
             await sendCommand([0x01, r, g, b]);
             await sendCommand([0x02, activeBrightness]);
-            const appMap = { "clock": 0, "date": 1, "text": 2, "off": 3 };
+            const appMap = { "clock": 0, "date": 1, "text": 2, "off": 3, "weather": 4 };
             await sendCommand([0x03, appMap[currentApp]]);
         }
 
         // App Selection (Modes)
         document.querySelectorAll('.app-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (btn.id === "btnTriggerWeather") return; // Weather has custom handlers
+                if (btn.id === "btnTriggerWeather") return; 
                 
                 document.querySelectorAll('.app-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
@@ -474,11 +518,8 @@
             currentApp = "text";
             
             document.querySelectorAll('.app-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('[data-app="text"]')?.classList.add('active'); // fallback highlights
-            
             updateDisplayLoop();
 
-            // Notify ESP32 to switch to Custom Text mode and update the scrolling buffer
             await sendCommand([0x03, 2]); 
             await sendTextToDevice(textValue);
         });
@@ -496,41 +537,31 @@
                     
                     txtStatus.textContent = "Getting weather data...";
                     try {
-                        // 1. Fetch current weather parameters from keyless public Open-Meteo API
                         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
                         const weatherData = await weatherRes.json();
                         const temp = Math.round(weatherData.current_weather.temperature);
-                        
-                        // Clean up condition codes
                         const code = weatherData.current_weather.weathercode;
-                        let condText = "Clear";
-                        if (code >= 1 && code <= 3) condText = "Partly Cloudy";
-                        else if (code >= 45 && code <= 48) condText = "Foggy";
-                        else if (code >= 51 && code <= 67) condText = "Drizzle";
-                        else if (code >= 71 && code <= 77) condText = "Snowy";
-                        else if (code >= 80 && code <= 82) condText = "Rainy";
-                        else if (code >= 95) condText = "Thunderstorms";
 
-                        // 2. Fetch City details from free keyless OSM Nominatim Reverse Geocoder
-                        txtStatus.textContent = "Finding City...";
-                        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, {
-                            headers: { 'User-Agent': 'DeskMate-Companion/1.5' }
-                        });
-                        const geoData = await geoRes.json();
-                        const city = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.county || "My Loc";
+                        // Weather condition classification: 
+                        // 1 = Partly Cloudy, 2 = Cloudy/Fog, 3 = Rainy, 4 = Snowy, 0 = Sunny/Clear
+                        let conditionId = 1; // Default to partly cloudy
+                        if (code === 0) conditionId = 0; // Sunny
+                        else if (code >= 1 && code <= 3) conditionId = 1; // Partly Cloudy
+                        else if (code >= 45 && code <= 48) conditionId = 2; // Foggy/Cloudy
+                        else if (code >= 51 && code <= 67) conditionId = 3; // Rainy
+                        else if (code >= 80 && code <= 82) conditionId = 3; // Rain Showers
+                        else if (code >= 95) conditionId = 3; // Thunderstorm
 
-                        // 3. Format dynamic clean string: e.g., "Kochi: +25C Partly Cloudy"
                         const sign = temp > 0 ? "+" : "";
-                        const weatherTextString = `${city}: ${sign}${temp}C ${condText}`;
-                        
+                        const formattedTempString = ` ${sign}${temp}C`; 
+
                         txtStatus.textContent = `Weather synced: ${temp}°C!`;
-                        localScrollText = weatherTextString;
+                        localWeatherString = formattedTempString;
                         currentApp = "weather";
                         updateDisplayLoop();
 
-                        // 4. Send over Bluetooth to the device
-                        await sendCommand([0x03, 2]); // Switch ESP32 screen to Custom Text mode
-                        await sendTextToDevice(weatherTextString); // Load the weather text payload into the scrolling array
+                        // Send Command 0x07 directly over BLE to trigger dedicated weather mode
+                        await sendWeatherToDevice(conditionId, formattedTempString);
 
                     } catch (err) {
                         console.error(err);
