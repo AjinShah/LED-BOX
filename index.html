@@ -52,7 +52,7 @@
             border-radius: 32px;
             padding: 24px 20px;
             overflow-y: auto;
-            max-height: 820px;
+            max-height: 850px;
         }
 
         .header {
@@ -112,6 +112,7 @@
             display: flex;
             align-items: center;
             padding: 0 10px;
+            transition: background 0.15s ease-out;
         }
 
         .matrix-led-overlay {
@@ -189,6 +190,16 @@
             background: #00b4ff;
             box-shadow: 0 0 5px #00b4ff;
             transition: width 1s linear;
+        }
+
+        /* Effects Overlay inside Mockup */
+        .mockup-effects-wrapper {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 5;
         }
 
         @keyframes scrollMockupWeather {
@@ -338,7 +349,7 @@
             margin-top: 10px;
         }
 
-        /* Sliders / Color pickers */
+        /* Sliders */
         .slider-wrapper {
             background: rgba(15, 23, 42, 0.5);
             border-radius: 12px;
@@ -378,6 +389,44 @@
             background: #10b981;
             box-shadow: 0 0 8px #10b981;
         }
+
+        /* Light Effects List */
+        .effects-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .effect-btn {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--glass-border);
+            padding: 14px 10px;
+            border-radius: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .effect-btn i {
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .effect-btn:hover i {
+            transform: scale(1.15);
+        }
+
+        .effect-btn.active {
+            border-color: #ec4899;
+            background: rgba(236, 72, 153, 0.15);
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -397,7 +446,7 @@
         <!-- Dynamic Live Render 3D Mockup -->
         <div class="device-mockup-container">
             <div class="device-mockup">
-                <div class="matrix-screen-emulation">
+                <div class="matrix-screen-emulation" id="emulatedScreen">
                     <div class="matrix-led-overlay"></div>
                     
                     <!-- Emulated Clock Visual Screen -->
@@ -409,13 +458,16 @@
                         <span id="mockupWeatherLabel" class="mockup-weather-text">+25C kochi</span>
                     </div>
 
-                    <!-- Emulated Timer Visual Screen (Centered Timer + Progress Bar) -->
+                    <!-- Emulated Timer Visual Screen -->
                     <div id="mockupTimer" class="mockup-timer-wrapper">
                         <div id="mockupTimerDigits" class="mockup-timer-digits">00:00</div>
                         <div class="mockup-timer-progress-bg">
                             <div id="mockupTimerProgress" class="mockup-timer-progress-fill"></div>
                         </div>
                     </div>
+
+                    <!-- Emulated Light Effects Overlay -->
+                    <div id="mockupEffects" class="mockup-effects-wrapper"></div>
                 </div>
             </div>
         </div>
@@ -447,9 +499,9 @@
                 <i class="fa-solid fa-hourglass-half"></i>
                 <span>Timer</span>
             </div>
-            <div class="menu-item" onclick="switchMode(3, 'blankPanel')">
-                <i class="fa-solid fa-moon"></i>
-                <span>Sleep</span>
+            <div class="menu-item" onclick="switchMode(6, 'effectsPanel')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Effects</span>
             </div>
         </div>
 
@@ -504,12 +556,27 @@
                 <button class="btn btn-secondary" style="margin-top: 10px;" onclick="controlTimer(4)"><i class="fa-solid fa-rotate-left"></i> Reset</button>
             </div>
 
-            <!-- Standby Settings -->
-            <div id="blankPanel" class="config-section">
-                <label>Standby Pipeline</label>
-                <p style="margin:0; color: var(--text-secondary); font-size: 13px; line-height: 1.5;">
-                    Puts the matrix screen into energy-saving standby mode.
-                </p>
+            <!-- Light Effects System Control Panel -->
+            <div id="effectsPanel" class="config-section">
+                <label>Active Light Effect</label>
+                <div class="effects-list">
+                    <button class="effect-btn" id="eff1" onclick="triggerLightEffect(1)">
+                        <i class="fa-solid fa-bolt" style="color: #fbbf24;"></i>
+                        <span>Strobe Light</span>
+                    </button>
+                    <button class="effect-btn" id="eff2" onclick="triggerLightEffect(2)">
+                        <i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i>
+                        <span>Police Siren</span>
+                    </button>
+                    <button class="effect-btn" id="eff3" onclick="triggerLightEffect(3)">
+                        <i class="fa-solid fa-terminal" style="color: #10b981;"></i>
+                        <span>Matrix Rain</span>
+                    </button>
+                    <button class="effect-btn" id="eff4" onclick="triggerLightEffect(4)">
+                        <i class="fa-solid fa-rainbow" style="color: #a855f7;"></i>
+                        <span>Rainbow Lava</span>
+                    </button>
+                </div>
             </div>
             
         </div>
@@ -526,10 +593,13 @@ let bleChar = null;
 // Mockup state tracking
 let activeMode = 0;
 let uiHexColor = "#00ff64";
-let timerValSeconds = 300; // Default 5 mins
+let timerValSeconds = 300; 
 let timerRemainingVal = 300;
 let timerRunningState = false;
 let timerInterval = null;
+
+// Mockup Light Loop
+let localMockupEffectInterval = null;
 
 // Clock update for emulated mockup
 setInterval(() => {
@@ -565,7 +635,6 @@ document.getElementById('connectBtn').addEventListener('click', async () => {
         document.getElementById('connectBtn').classList.add('btn-disconnect');
         bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
-        // Auto Hands-free Actions on hand-shake
         await syncRtcClock();
         await fetchAndTransmitLocalWeather();
 
@@ -604,7 +673,6 @@ async function syncRtcClock() {
     await writeBLE(packet);
 }
 
-// Auto weather location + open API pipeline 
 async function fetchAndTransmitLocalWeather() {
     if (!navigator.geolocation) {
         transmitWeatherFallback("Kochi");
@@ -615,12 +683,10 @@ async function fetchAndTransmitLocalWeather() {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         try {
-            // Get local temperature
             const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
             const weatherData = await weatherRes.json();
             const tempVal = Math.round(weatherData.current_weather.temperature);
             
-            // Retrieve locality name
             const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
             const geoData = await geoRes.json();
             const cityName = geoData.city || geoData.locality || "Local";
@@ -629,7 +695,6 @@ async function fetchAndTransmitLocalWeather() {
             document.getElementById('weatherTemp').value = payload.trim();
             document.getElementById('mockupWeatherLabel').innerText = payload.trim();
             
-            // Transmit weather packet to DeskMate
             await transmitWeatherString(payload);
         } catch (e) {
             transmitWeatherFallback("Kochi");
@@ -640,7 +705,6 @@ async function fetchAndTransmitLocalWeather() {
 }
 
 async function transmitWeatherFallback(city) {
-    // Falls back to Kochi if location services are denied
     const payload = ` +25C ${city}`;
     document.getElementById('weatherTemp').value = payload.trim();
     document.getElementById('mockupWeatherLabel').innerText = payload.trim();
@@ -652,7 +716,7 @@ async function transmitWeatherString(weatherStr) {
     const textBytes = encoder.encode(weatherStr);
     const packet = new Uint8Array(2 + textBytes.length);
     packet[0] = 0x07;
-    packet[1] = 0x01; // Weather Mask Id
+    packet[1] = 0x01; 
     packet.set(textBytes, 2);
     await writeBLE(packet);
 }
@@ -671,7 +735,13 @@ async function switchMode(modeId, panelId) {
     event.currentTarget.classList.add('active');
     document.getElementById(panelId).classList.add('visible');
 
-    // Toggle interactive UI states on device mockup
+    // Reset mockup animations when switching away from custom effects
+    if (modeId !== 6) {
+        clearInterval(localMockupEffectInterval);
+        document.getElementById('emulatedScreen').style.background = "#04060b";
+        document.getElementById('mockupEffects').style.display = "none";
+    }
+
     document.getElementById('mockupClock').style.display = (modeId === 0) ? "block" : "none";
     document.getElementById('mockupWeather').style.display = (modeId === 4) ? "flex" : "none";
     document.getElementById('mockupTimer').style.display = (modeId === 5) ? "flex" : "none";
@@ -712,13 +782,13 @@ async function sendScrollText() {
 async function controlTimer(actionCode) {
     const minutesSet = parseInt(document.getElementById('timerMinutes').value) || 5;
     
-    if (actionCode === 1) { // Set & Stop Timer
+    if (actionCode === 1) { 
         timerValSeconds = minutesSet * 60;
         timerRemainingVal = timerValSeconds;
         timerRunningState = false;
         clearInterval(timerInterval);
         updateMockupTimerDisplay();
-    } else if (actionCode === 2) { // Start Timer
+    } else if (actionCode === 2) { 
         timerRunningState = true;
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
@@ -730,10 +800,10 @@ async function controlTimer(actionCode) {
                 clearInterval(timerInterval);
             }
         }, 1000);
-    } else if (actionCode === 3) { // Pause Timer
+    } else if (actionCode === 3) { 
         timerRunningState = false;
         clearInterval(timerInterval);
-    } else if (actionCode === 4) { // Reset Timer
+    } else if (actionCode === 4) { 
         timerRemainingVal = timerValSeconds;
         timerRunningState = false;
         clearInterval(timerInterval);
@@ -751,9 +821,69 @@ function updateMockupTimerDisplay() {
     const sec = String(timerRemainingVal % 60).padStart(2, '0');
     document.getElementById('mockupTimerDigits').innerText = `${min}:${sec}`;
     
-    // Compute dynamic width of the bottom emulated progress bar
     const percentage = timerValSeconds > 0 ? (timerRemainingVal / timerValSeconds) * 100 : 0;
     document.getElementById('mockupTimerProgress').style.width = `${percentage}%`;
+}
+
+// ============================================================================
+// LIGHT EFFECTS CONTROLLER METHODS
+// ============================================================================
+async function triggerLightEffect(effectId) {
+    document.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`eff${effectId}`).classList.add('active');
+
+    // Display the effects overlay on the 3D mockup screen
+    document.getElementById('mockupClock').style.display = "none";
+    document.getElementById('mockupWeather').style.display = "none";
+    document.getElementById('mockupTimer').style.display = "none";
+    document.getElementById('mockupEffects').style.display = "block";
+
+    clearInterval(localMockupEffectInterval);
+
+    // Mockup Canvas Emulation Loop
+    const screenEl = document.getElementById('emulatedScreen');
+    const effectsOverlay = document.getElementById('mockupEffects');
+    let toggle = false;
+    let hueOffset = 0;
+
+    if (effectId === 1) { // Strobe Light Mockup
+        localMockupEffectInterval = setInterval(() => {
+            toggle = !toggle;
+            screenEl.style.backgroundColor = toggle ? "#ffffff" : "#04060b";
+        }, 80);
+    } 
+    else if (effectId === 2) { // Police Siren Mockup
+        localMockupEffectInterval = setInterval(() => {
+            toggle = !toggle;
+            screenEl.style.background = toggle 
+                ? "linear-gradient(90deg, #ff0000 50%, #0000ff 50%)" 
+                : "linear-gradient(90deg, #0000ff 50%, #ff0000 50%)";
+        }, 150);
+    } 
+    else if (effectId === 3) { // Matrix Rain Mockup
+        screenEl.style.background = "#04060b";
+        effectsOverlay.innerHTML = '<div style="color: #10b981; font-family: monospace; font-size: 8px; text-align: center; margin-top: 4px; overflow: hidden; height: 100%; width: 100%;">1010101010111101<br>0101100101110010<br>1101010001010111</div>';
+        localMockupEffectInterval = setInterval(() => {
+            // Emulate flashing Matrix drips
+            const textNodes = effectsOverlay.firstChild;
+            if (textNodes) {
+                textNodes.innerHTML = Array.from({length: 3}, () => 
+                    Math.random().toString(2).substring(2, 18)
+                ).join('<br>');
+            }
+        }, 200);
+    } 
+    else if (effectId === 4) { // Rainbow Lava Mockup
+        effectsOverlay.innerHTML = '';
+        localMockupEffectInterval = setInterval(() => {
+            hueOffset = (hueOffset + 5) % 360;
+            screenEl.style.background = `linear-gradient(${hueOffset}deg, #ef4444, #3b82f6, #10b981, #f59e0b)`;
+        }, 40);
+    }
+
+    // Direct write to hardware via BLE
+    const packet = new Uint8Array([0x09, effectId]);
+    await writeBLE(packet);
 }
 </script>
 </body>
