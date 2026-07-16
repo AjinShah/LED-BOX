@@ -4,514 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeskMate Companion</title>
-    <!-- Google Fonts & Lucide Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #090a0f 0%, #151821 100%);
-            --glass-card: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.07);
-            --glass-glow: rgba(0, 168, 255, 0.2);
-            --text-primary: #ffffff;
-            --text-secondary: #8a8f9d;
-            --accent-blue: #0088ff;
-            --accent-glow: #00d4ff;
-            --grid-led-off: #1b1e29;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         body {
-            background: var(--bg-gradient);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0e12;
+            color: #f3f4f6;
+        }
+        
+        .glass-panel {
+            background: rgba(22, 24, 33, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Responsive Mobile Container */
-        .app-container {
-            width: 100%;
-            max-width: 410px;
-            background: rgba(10, 11, 18, 0.85);
-            border: 1px solid var(--glass-border);
-            border-radius: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        /* Header Connection Bar */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand-section h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(to right, #ffffff, #8a8f9d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-section p {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 2px;
-        }
-
-        .btn-connect {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-connect.connected {
-            background: rgba(0, 136, 255, 0.15);
-            border-color: var(--accent-blue);
-            color: #39b5ff;
-            box-shadow: 0 0 10px rgba(0, 136, 255, 0.2);
-        }
-
-        .btn-connect:active {
-            transform: scale(0.95);
-        }
-
-        /* 3D Model Styled Hardware Mockup */
-        .hardware-viewport {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
-        }
-
-        /* 3D-like White Matte Chassis */
-        .physical-clock {
-            width: 280px;
-            height: 140px;
-            background: #fdfdfd;
-            border-radius: 24px;
-            box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.4),
-                0 3px 5px rgba(255, 255, 255, 0.5) inset,
-                0 -5px 10px rgba(0,0,0,0.1) inset;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        /* Top Touch Indent Graphic */
-        .physical-clock::before {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 48px;
-            height: 12px;
-            background: #e2e8f0;
-            border-radius: 50%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* Deep Matte Screen Bezel */
-        .bezel {
-            width: 100%;
-            height: 100%;
-            background: #08080c;
-            border-radius: 14px;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
-            border: 1px solid #1a1a24;
-        }
-
-        /* 16x8 Matrix Simulator */
         .matrix-grid {
             display: grid;
-            grid-template-columns: repeat(16, 1fr);
+            grid-template-columns: repeat(16, minmax(0, 1fr));
             gap: 2px;
-            width: 100%;
-            height: 100%;
+            background: #050608;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
         }
 
         .led {
             aspect-ratio: 1;
-            background: var(--grid-led-off);
-            border-radius: 1px;
-            transition: background 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        /* UI Control Cards */
-        .control-card {
-            background: var(--glass-card);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Quick-App Grid */
-        .apps-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .app-btn {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.25s ease;
-        }
-
-        .app-btn i {
-            font-size: 18px;
-            transition: transform 0.25s ease;
-        }
-
-        .app-btn p {
-            font-size: 10px;
-            font-weight: 500;
-        }
-
-        .app-btn.active {
-            background: rgba(0, 136, 255, 0.08);
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            box-shadow: 0 0 12px rgba(0, 136, 255, 0.15);
-        }
-
-        .app-btn.active i {
-            transform: scale(1.1);
-        }
-
-        /* Color Settings Section */
-        .settings-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .brightness-slider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.01);
-            padding: 10px 14px;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .slider-wrapper {
-            flex-grow: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: rgba(255,255,255,0.1);
-            height: 6px;
-            border-radius: 3px;
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
             border-radius: 50%;
-            background: var(--text-primary);
-            box-shadow: 0 0 8px rgba(255,255,255,0.8);
-            cursor: pointer;
-            transition: transform 0.1s ease;
+            background: var(--grid-led-off, #11131a);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
         }
 
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
+        :root {
+            --grid-led-off: #151821;
         }
 
-        /* Preset Palette */
-        .color-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-        }
-
-        .palette {
-            display: flex;
-            gap: 8px;
-        }
-
-        .color-dot {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .color-dot.active {
-            border-color: var(--text-primary);
-            transform: scale(1.1);
-            box-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
-
-        /* Input/Custom Picker Wrapper */
-        .picker-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 2px solid var(--glass-border);
-            background: conic-gradient(red, yellow, green, cyan, blue, magenta, red);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .picker-btn input[type="color"] {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            width: 48px;
-            height: 48px;
-            border: none;
-            cursor: pointer;
-            opacity: 0;
-        }
-
-        /* Tone/Alert Testing Station */
-        .action-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .action-btn {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            border-radius: 16px;
-            padding: 12px;
-            font-weight: 600;
-            font-size: 13px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .action-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* Status Footer Badge */
-        .status-bar {
-            text-align: center;
-            font-size: 11px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .status-indicator {
+        /* Customize scrollbars slightly */
+        ::-webkit-scrollbar {
             width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #ff3344;
-            box-shadow: 0 0 6px #ff3344;
-            transition: all 0.3s ease;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0e12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #272a37;
+            border-radius: 3px;
         }
 
-        .status-indicator.online {
-            background: #00ff66;
-            box-shadow: 0 0 6px #00ff66;
+        /* Pulse for online indicator */
+        .pulse-online {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* Active styling for app mode select buttons */
+        .app-btn.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+
+        /* Color selection active */
+        .color-dot.active {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
         }
     </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-start min-h-screen p-4 md:p-8">
 
-    <div class="app-container">
+    <div class="w-full max-w-md flex flex-col gap-5">
         
-        <!-- Header -->
-        <header class="header">
-            <div class="brand-section">
-                <h1>DeskMate</h1>
-                <p>v1.5 Companion</p>
+        <!-- Header Info panel -->
+        <div class="glass-panel rounded-2xl p-5 flex items-center justify-between shadow-xl">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    DeskMate
+                </h1>
+                <p class="text-xs text-gray-400 mt-0.5">V1.5 COMPANION</p>
             </div>
-            <button class="btn-connect" id="btnConnect">
-                <i data-lucide="bluetooth"></i>
+            
+            <button id="btnConnect" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg transition duration-200">
+                <i data-lucide="bluetooth" class="w-4 h-4"></i>
                 <span id="txtConnect">Connect</span>
             </button>
-        </header>
+        </div>
 
-        <!-- Dynamic Simulated Hardware Panel -->
-        <section class="hardware-viewport">
-            <div class="physical-clock">
-                <div class="bezel">
-                    <div class="matrix-grid" id="matrixGrid">
-                        <!-- Generates 128 elements dynamically via JS -->
-                    </div>
+        <!-- Hardware Display Simulator -->
+        <div class="glass-panel rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                    <span id="statusIndicator" class="w-2 h-2 rounded-full bg-red-500"></span>
+                    Live Simulator
+                </span>
+                <span id="txtStatus" class="text-xs text-gray-400 italic">Disconnected</span>
+            </div>
+
+            <!-- Virtual 16x8 matrix representation inside an organic desk clock border shape -->
+            <div class="relative bg-zinc-900 border-4 border-zinc-200 rounded-[2.5rem] p-4 flex items-center justify-center shadow-inner">
+                <div class="absolute -top-1 w-12 h-2 bg-zinc-400 rounded-b-md"></div>
+                <div id="matrixGrid" class="matrix-grid w-full aspect-[2/1]">
+                    <!-- Instantiated by JS -->
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Applications Grid Control -->
-        <section class="control-card">
-            <div class="section-title">
-                <i data-lucide="layout-grid" style="width: 14px;"></i> Active Mode
+        <!-- System Controls -->
+        <div class="glass-panel rounded-2xl p-5 flex flex-col gap-5 shadow-xl">
+            
+            <!-- App selection options -->
+            <div>
+                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-3">Active Mode</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button class="app-btn active border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="clock">
+                        <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+                        <span>Clock</span>
+                    </button>
+                    <button class="app-btn border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="weather">
+                        <i data-lucide="cloud-sun" class="w-4 h-4 text-amber-400"></i>
+                        <span>Weather</span>
+                    </button>
+                    <button class="app-btn border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="visualizer">
+                        <i data-lucide="music" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Music</span>
+                    </button>
+                    <button class="app-btn border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/40 rounded-xl py-3 flex flex-col items-center justify-center gap-1.5 transition text-xs font-medium text-gray-300" data-app="off">
+                        <i data-lucide="eye-off" class="w-4 h-4 text-gray-500"></i>
+                        <span>Blank</span>
+                    </button>
+                </div>
             </div>
-            <div class="apps-row">
-                <button class="app-btn active" data-app="clock">
-                    <i data-lucide="clock"></i>
-                    <p>Clock</p>
-                </button>
-                <button class="app-btn" data-app="weather">
-                    <i data-lucide="cloud-sun"></i>
-                    <p>Weather</p>
-                </button>
-                <button class="app-btn" data-app="visualizer">
-                    <i data-lucide="activity"></i>
-                    <p>Music</p>
-                </button>
-                <button class="app-btn" data-app="off">
-                    <i data-lucide="power"></i>
-                    <p>Blank</p>
-                </button>
-            </div>
-        </section>
 
-        <!-- Design Customization Settings -->
-        <section class="control-card">
-            <div class="section-title">
-                <i data-lucide="palette" style="width: 14px;"></i> Matrix Styling
-            </div>
-            <div class="settings-grid">
-                <!-- Color Selector -->
-                <div class="color-row">
-                    <span style="font-size: 13px; font-weight: 500; color: var(--text-secondary);">Solid Palette</span>
-                    <div class="palette">
-                        <div class="color-dot active" style="background: #ff3b30;" data-color="#ff3b30"></div>
-                        <div class="color-dot" style="background: #34c759;" data-color="#34c759"></div>
-                        <div class="color-dot" style="background: #007aff;" data-color="#007aff"></div>
-                        <div class="color-dot" style="background: #ffcc00;" data-color="#ffcc00"></div>
-                        <div class="picker-btn">
-                            <input type="color" id="customColorPicker" value="#ff3b30">
+            <!-- Matrix styling parameters -->
+            <div class="border-t border-zinc-800/60 pt-4 flex flex-col gap-4">
+                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">Matrix Styling</label>
+                
+                <!-- Quick Palettes -->
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-400">Solid Palette</span>
+                    <div class="flex items-center gap-2">
+                        <button class="color-dot w-6 h-6 rounded-full bg-[#ff3b30] active" data-color="#ff3b30"></button>
+                        <button class="color-dot w-6 h-6 rounded-full bg-[#34c759]" data-color="#34c759"></button>
+                        <button class="color-dot w-6 h-6 rounded-full bg-[#007aff]" data-color="#007aff"></button>
+                        <button class="color-dot w-6 h-6 rounded-full bg-[#ffcc00]" data-color="#ffcc00"></button>
+                        
+                        <!-- Custom pick -->
+                        <div class="relative w-6 h-6 rounded-full overflow-hidden border border-zinc-700 flex items-center justify-center">
+                            <input type="color" id="customColorPicker" value="#ff3b30" class="absolute scale-150 cursor-pointer">
                         </div>
                     </div>
                 </div>
-                <!-- Brightness Slider -->
-                <div class="brightness-slider">
-                    <i data-lucide="sun" style="width: 16px; color: var(--text-secondary);"></i>
-                    <div class="slider-wrapper">
-                        <input type="range" id="brightnessRange" min="10" max="255" value="128">
+
+                <!-- Custom Brightness -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span>Intensity</span>
+                        <span id="brightnessVal">50%</span>
                     </div>
+                    <input type="range" id="brightnessRange" min="1" max="255" value="128" class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
                 </div>
             </div>
-        </section>
 
-        <!-- Live Hardware Interactions (Transistor & Audio Proofing) -->
-        <section class="control-card">
-            <div class="section-title">
-                <i data-lucide="hammer" style="width: 14px;"></i> Diagnostic Tools
+            <!-- Diagnostics control block -->
+            <div class="border-t border-zinc-800/60 pt-4 flex flex-col gap-3">
+                <label class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-1">Diagnostic Tools</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnSyncTime" class="py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-800/30 text-xs font-medium text-gray-300 flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+                        Sync RTC
+                    </button>
+                    <button id="btnTestBuzzer" class="py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-800/30 text-xs font-medium text-gray-300 flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                        Test Tone
+                    </button>
+                </div>
             </div>
-            <div class="action-row">
-                <button class="action-btn" id="btnSyncTime">
-                    <i data-lucide="rotate-cw" style="width: 14px;"></i> Sync RTC
-                </button>
-                <button class="action-btn" id="btnTestBuzzer">
-                    <i data-lucide="volume-2" style="width: 14px;"></i> Test Tone
-                </button>
-            </div>
-        </section>
 
-        <!-- Status Bar -->
-        <footer class="status-bar">
-            <div class="status-indicator" id="statusIndicator"></div>
-            <span id="txtStatus">Hardware Disconnected</span>
-        </footer>
+        </div>
 
     </div>
 
     <!-- Interface Logic & BLE Transmissions -->
     <script>
-       // Setup icons
+        // Setup icons
         lucide.createIcons();
 
         // Constants matching production ESP32 UUIDs
-        const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";[cite: 1]
-        const CHAR_UUID    = "4fa10002-e89b-4a9e-912c-21a7420896aa";[cite: 1]
+        const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
+        const CHAR_UUID    = "4fa10002-e89b-4a9e-912c-21a7420896aa";
 
         // Web BLE Hardware State variables
         let gattDevice = null;
@@ -529,6 +230,7 @@
         const matrixGrid = document.getElementById('matrixGrid');
         const customColorPicker = document.getElementById('customColorPicker');
         const brightnessRange = document.getElementById('brightnessRange');
+        const brightnessVal = document.getElementById('brightnessVal');
         const btnSyncTime = document.getElementById('btnSyncTime');
         const btnTestBuzzer = document.getElementById('btnTestBuzzer');
 
@@ -646,19 +348,20 @@
                 // This must be the absolute first execution step to satisfy browser security
                 gattDevice = await navigator.bluetooth.requestDevice({
                     filters: [
-                        { services: [SERVICE_UUID] }[cite: 1]
+                        { services: [SERVICE_UUID] }
                     ]
                 });
 
                 txtStatus.textContent = "Establishing Connection...";
                 const server = await gattDevice.gatt.connect();
-                const service = await server.getPrimaryService(SERVICE_UUID);[cite: 1]
-                gattCharacteristic = await service.getCharacteristic(CHAR_UUID);[cite: 1]
+                const service = await server.getPrimaryService(SERVICE_UUID);
+                gattCharacteristic = await service.getCharacteristic(CHAR_UUID);
 
                 // Success
                 btnConnect.classList.add('connected');
                 txtConnect.textContent = "Connected";
                 statusIndicator.classList.add('online');
+                statusIndicator.classList.add('pulse-online');
                 txtStatus.textContent = "DeskMate Connected!";
 
                 gattDevice.addEventListener('gattserverdisconnected', onDisconnected);
@@ -675,6 +378,7 @@
             btnConnect.classList.remove('connected');
             txtConnect.textContent = "Connect";
             statusIndicator.classList.remove('online');
+            statusIndicator.classList.remove('pulse-online');
             txtStatus.textContent = "Hardware Disconnected";
             gattDevice = null;
             gattCharacteristic = null;
@@ -739,6 +443,8 @@
         // Brightness
         brightnessRange.addEventListener('input', (e) => {
             activeBrightness = parseInt(e.target.value);
+            const percentage = Math.round((activeBrightness / 255) * 100);
+            brightnessVal.textContent = `${percentage}%`;
             sendCommand([0x02, activeBrightness]);
         });
 
