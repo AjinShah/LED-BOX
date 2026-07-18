@@ -93,7 +93,6 @@
                 <div class="matrix-screen-emulation" id="emulatedScreen">
                     <div class="matrix-led-overlay"></div>
                     <div id="mockupClock" class="mockup-clock">12:00</div>
-                    <!-- FIX 1: Calendar container to emulate scrolling date output text -->
                     <div id="mockupCalendar" class="mockup-calendar-wrapper">
                         <span id="mockupCalendarLabel" class="mockup-calendar-text"></span>
                     </div>
@@ -228,7 +227,7 @@ document.getElementById('connectBtn').addEventListener('click', async () => {
 
         await syncRtcClock();
         
-        // FIX 2: Fetches location-specific weather details and pushes it to the device automatically on connection setup
+        // Fetches weather details and updates device layout state quietly
         await fetchAndAutoTransmitWeather();
     } catch (err) { document.getElementById('statusText').innerText = "Failed"; }
 });
@@ -262,10 +261,11 @@ async function syncRtcClock() {
     await writeBLE(packet);
 }
 
-// FIX 2: Queries live coordinates, calculates correct values, updates interface, and pushes to ESP32 silently
+// FIX: Pulls positioning variables and updates hardware memory buffers silently without modifying active display frames
 async function fetchAndAutoTransmitWeather() {
     if (!navigator.geolocation) { 
         await transmitWeatherString(" +25C Kochi");
+        await forceActiveDisplayMode(activeMode);
         return; 
     }
     navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -279,14 +279,23 @@ async function fetchAndAutoTransmitWeather() {
             document.getElementById('weatherTemp').value = payload.trim();
             document.getElementById('mockupWeatherLabel').innerText = payload.trim();
             
-            // Instantly transmit the calculated values down to hardware memory
             await transmitWeatherString(payload);
+            
+            // FIX: Instantly send a sequential packet to rollback the display screen back to the webapp's active view mode index context.
+            await forceActiveDisplayMode(activeMode);
         } catch (e) {
             await transmitWeatherString(" +25C Kochi");
+            await forceActiveDisplayMode(activeMode);
         }
     }, async () => {
         await transmitWeatherString(" +25C Kochi");
+        await forceActiveDisplayMode(activeMode);
     });
+}
+
+async function forceActiveDisplayMode(modeIndex) {
+    const packet = new Uint8Array([0x03, modeIndex]);
+    await writeBLE(packet);
 }
 
 async function transmitWeatherString(weatherStr) {
@@ -308,17 +317,17 @@ async function switchMode(modeId, panelId) {
     document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.config-section').forEach(sec => sec.classList.remove('visible'));
     
-    event.currentTarget.classList.add('active');
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
     document.getElementById(panelId).classList.add('visible');
 
     clearInterval(localMockupEffectInterval);
     document.getElementById('emulatedScreen').style.background = "#04060b";
     document.getElementById('mockupEffects').style.display = "none";
 
-    // Toggle visibility states cleanly
     document.getElementById('mockupClock').style.display = (modeId === 0) ? "block" : "none";
     
-    // FIX 1: Hydrate date contents dynamically and toggle block display when modeId is calendar (1)
     if (modeId === 1) {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('mockupCalendarLabel').innerText = new Date().toLocaleDateString('en-US', options);
@@ -334,8 +343,7 @@ async function switchMode(modeId, panelId) {
     document.getElementById('mockupWeather').style.display = (modeId === 4) ? "flex" : "none";
     document.getElementById('mockupTimer').style.display = (modeId === 5) ? "flex" : "none";
 
-    const packet = new Uint8Array([0x03, modeId]);
-    await writeBLE(packet);
+    await forceActiveDisplayMode(modeId);
 }
 
 async function updateColor(hexColor) {
