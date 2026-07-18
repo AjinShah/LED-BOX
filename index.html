@@ -46,20 +46,17 @@
         .mockup-timer-progress-bg { width: 95%; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 2px; }
         .mockup-timer-progress-fill { width: 100%; height: 100%; background: #00b4ff; box-shadow: 0 0 5px #00b4ff; transition: width 1s linear; }
         
-        /* Advanced Dynamic Mockup Effects Engine Styles */
+        /* Effects Styles */
         .mockup-effects-wrapper { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
         .eff-horizon { width: 100%; height: 4px; background: #3b82f6; box-shadow: 0 0 12px #3b82f6, 0 0 20px #3b82f6; position: absolute; left: 0; top: 50%; transform: translateY(-50%); animation: scanHorizon 1.8s ease-in-out infinite; }
         @keyframes scanHorizon { 0%, 100% { opacity: 0.3; transform: translateY(-50%) scaleY(0.7); } 50% { opacity: 1; transform: translateY(-50%) scaleY(1.5); } }
-        
         .eff-vortex { width: 44px; height: 44px; border-radius: 50%; border: 3px double transparent; background-image: linear-gradient(#000, #000), linear-gradient(135deg, #0055ff, #ff0055); background-origin: border-box; background-clip: content-box, border-box; position: absolute; top: 10px; left: calc(50% - 22px); box-shadow: 0 0 15px rgba(0,85,255,0.4); animation: rotateVortex 2.5s linear infinite; }
         @keyframes rotateVortex { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .eff-stream { width: 100%; height: 100%; position: relative; opacity: 0.85; background: radial-gradient(circle at center, transparent 20%, #000 90%); }
         .eff-stream::before, .eff-stream::after { content: ''; position: absolute; width: 200%; height: 100%; top: 0; left: -50%; background-repeat: repeat-x; background-size: 40px 100%; }
         .eff-stream::before { background-image: linear-gradient(45deg, transparent 45%, #ec4899 49%, #ec4899 51%, transparent 55%); animation: moveStream 3s linear infinite; }
         .eff-stream::after { background-image: linear-gradient(-45deg, transparent 45%, #3b82f6 49%, #3b82f6 51%, transparent 55%); animation: moveStream 4s linear infinite reverse; }
         @keyframes moveStream { 0% { transform: translateX(0) scaleY(0.8); } 100% { transform: translateX(-40px) scaleY(1.2); } }
-        
         .eff-starburst { width: 100%; height: 100%; background: repeating-linear-gradient(90deg, rgba(239,68,68,0.15) 0px, rgba(239,68,68,0.15) 4px, transparent 4px, transparent 8px); animation: pulseBurst 1.2s steps(4) infinite; }
         @keyframes pulseBurst { 0%, 100% { filter: hue-rotate(0deg) invert(0); } 50% { filter: hue-rotate(180deg) invert(0.2); } }
 
@@ -200,10 +197,14 @@
             <div id="effectsPanel" class="config-section">
                 <label>Active Premium Light Effect</label>
                 <div class="effects-list">
-                    <button class="effect-btn" id="eff1" onclick="triggerLightEffect(1)"><i class="fa-solid fa-grip-lines" style="color: #3b82f6;"></i><span>Neon Horizon</span></button>
-                    <button class="effect-btn" id="eff2" onclick="triggerLightEffect(2)"><i class="fa-solid fa-circle-notch" style="color: #ec4899;"></i><span>Plasma Vortex</span></button>
-                    <button class="effect-btn" id="eff3" onclick="triggerLightEffect(3)"><i class="fa-solid fa-bezier-curve" style="color: #a855f7;"></i><span>Cyber Stream</span></button>
-                    <button class="effect-btn" id="eff4" onclick="triggerLightEffect(4)"><i class="fa-solid fa-star" style="color: #ef4444;"></i><span>Star Burst</span></button>
+                    <button class="effect-btn" id="eff1" onclick="triggerLightEffect(1)"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i><span>Strobe Light</span></button>
+                    <button class="effect-btn" id="eff2" onclick="triggerLightEffect(2)"><i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i><span>Police Siren</span></button>
+                    <button class="effect-btn" id="eff3" onclick="triggerLightEffect(3)"><i class="fa-solid fa-terminal" style="color: #10b981;"></i><span>Matrix Rain</span></button>
+                    <button class="effect-btn" id="eff4" onclick="triggerLightEffect(4)"><i class="fa-solid fa-rainbow" style="color: #a855f7;"></i><span>Rainbow Lava</span></button>
+                    <button class="effect-btn" id="eff5" onclick="triggerLightEffect(5)"><i class="fa-solid fa-grip-lines" style="color: #3b82f6;"></i><span>Neon Horizon</span></button>
+                    <button class="effect-btn" id="eff6" onclick="triggerLightEffect(6)"><i class="fa-solid fa-circle-notch" style="color: #ec4899;"></i><span>Plasma Vortex</span></button>
+                    <button class="effect-btn" id="eff7" onclick="triggerLightEffect(7)"><i class="fa-solid fa-bezier-curve" style="color: #a855f7;"></i><span>Cyber Stream</span></button>
+                    <button class="effect-btn" id="eff8" onclick="triggerLightEffect(8)"><i class="fa-solid fa-star" style="color: #ef4444;"></i><span>Star Burst</span></button>
                 </div>
                 <label>Effects Intensity Brightness</label>
                 <div class="slider-wrapper">
@@ -264,15 +265,8 @@ async function writeBLE(arrayBuffer) {
 async function syncRtcClock() {
     const now = new Date();
     const packet = new Uint8Array([
-        0x04, 
-        now.getHours(), 
-        now.getMinutes(), 
-        now.getSeconds(),
-        now.getDate(),
-        now.getDay(),
-        (now.getFullYear() >> 8) & 0xFF,
-        now.getFullYear() & 0xFF,
-        now.getMonth() + 1
+        0x04, now.getHours(), now.getMinutes(), now.getSeconds(),
+        now.getDate(), now.getDay(), (now.getFullYear() >> 8) & 0xFF, now.getFullYear() & 0xFF, now.getMonth() + 1
     ]);
     await writeBLE(packet);
 }
@@ -330,11 +324,10 @@ async function switchMode(modeId, panelId) {
     document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.config-section').forEach(sec => sec.classList.remove('visible'));
     
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
+    if (event && event.currentTarget) { event.currentTarget.classList.add('active'); }
     document.getElementById(panelId).classList.add('visible');
 
+    clearInterval(localMockupEffectInterval);
     document.getElementById('emulatedScreen').style.background = "#04060b";
     document.getElementById('mockupEffects').style.display = "none";
     document.getElementById('mockupEffects').innerHTML = "";
@@ -414,17 +407,36 @@ async function triggerLightEffect(effectId) {
     document.getElementById('mockupWeather').style.display = "none";
     document.getElementById('mockupTimer').style.display = "none";
     
+    const screenEl = document.getElementById('emulatedScreen');
     const effectsOverlay = document.getElementById('mockupEffects');
     effectsOverlay.style.display = "block";
     effectsOverlay.innerHTML = "";
+    clearInterval(localMockupEffectInterval);
+
+    let toggle = false, hueOffset = 0;
 
     if (effectId === 1) {
-        effectsOverlay.innerHTML = '<div class="eff-horizon"></div>';
+        const strobeColors = ["#ff0000", "#0000ff", "#ffffff", "#ffb400"];
+        let colorIdx = 0;
+        localMockupEffectInterval = setInterval(() => {
+            toggle = !toggle;
+            screenEl.style.background = toggle ? strobeColors[colorIdx] : "#04060b";
+            if(!toggle) colorIdx = (colorIdx + 1) % strobeColors.length;
+        }, 100);
     } else if (effectId === 2) {
-        effectsOverlay.innerHTML = '<div class="eff-vortex"></div>';
+        localMockupEffectInterval = setInterval(() => { toggle = !toggle; screenEl.style.background = toggle ? "linear-gradient(90deg, #ff0000 50%, #0000ff 50%)" : "linear-gradient(90deg, #0000ff 50%, #ff0000 50%)"; }, 180);
     } else if (effectId === 3) {
-        effectsOverlay.innerHTML = '<div class="eff-stream"></div>';
+        effectsOverlay.innerHTML = '<div style="color: #10b981; font-family: monospace; font-size: 8px; text-align: center; margin-top: 4px;">1010101010111101</div>';
+        localMockupEffectInterval = setInterval(() => { if (effectsOverlay.firstChild) effectsOverlay.firstChild.innerHTML = Array.from({length: 3}, () => Math.random().toString(2).substring(2, 18)).join('<br>'); }, 200);
     } else if (effectId === 4) {
+        localMockupEffectInterval = setInterval(() => { hueOffset = (hueOffset + 5) % 360; screenEl.style.background = `linear-gradient(${hueOffset}deg, #ef4444, #3b82f6, #10b981, #f59e0b)`; }, 40);
+    } else if (effectId === 5) {
+        effectsOverlay.innerHTML = '<div class="eff-horizon"></div>';
+    } else if (effectId === 6) {
+        effectsOverlay.innerHTML = '<div class="eff-vortex"></div>';
+    } else if (effectId === 7) {
+        effectsOverlay.innerHTML = '<div class="eff-stream"></div>';
+    } else if (effectId === 8) {
         effectsOverlay.innerHTML = '<div class="eff-starburst"></div>';
     }
 
