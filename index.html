@@ -116,7 +116,6 @@
             <div class="menu-item" onclick="switchMode(1, 'datePanel')">
                 <i class="fa-regular fa-calendar"></i><span>Calendar</span>
             </div>
-            <!-- FIX 2: Text mode selection parameter maps straight to screen index value 3 (Blank Screen) -->
             <div class="menu-item" onclick="switchMode(3, 'textPanel')">
                 <i class="fa-solid fa-font"></i><span>Message</span>
             </div>
@@ -220,8 +219,12 @@ document.getElementById('connectBtn').addEventListener('click', async () => {
         document.getElementById('connectBtn').classList.add('btn-disconnect');
         bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
+        // Syncs background parameters only
         await syncRtcClock();
-        await fetchAndTransmitLocalWeather();
+        
+        // FIX: Replaced background transmission method call that used to trigger command 0x07 mode switch automatically on connect.
+        // It now silently updates weather fields in background without sending mode switch commands to the ESP32.
+        await fetchAndCacheLocalWeatherOnly();
     } catch (err) { document.getElementById('statusText').innerText = "Failed"; }
 });
 
@@ -238,7 +241,6 @@ async function writeBLE(arrayBuffer) {
     try { await bleChar.writeValueWithoutResponse(arrayBuffer); } catch (e) { console.error(e); }
 }
 
-// FIX 1: Overhauled payload map layout to cleanly push full system time and calendar fields simultaneously
 async function syncRtcClock() {
     const now = new Date();
     const packet = new Uint8Array([
@@ -255,8 +257,13 @@ async function syncRtcClock() {
     await writeBLE(packet);
 }
 
-async function fetchAndTransmitLocalWeather() {
-    if (!navigator.geolocation) { transmitWeatherFallback("Kochi"); return; }
+// FIX: Added dedicated silent handler to query and populate weather data fields without forcing screen shifts.
+async function fetchAndCacheLocalWeatherOnly() {
+    if (!navigator.geolocation) { 
+        document.getElementById('weatherTemp').value = "+25C Kochi";
+        document.getElementById('mockupWeatherLabel').innerText = "+25C Kochi";
+        return; 
+    }
     navigator.geolocation.getCurrentPosition(async (pos) => {
         try {
             const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`);
@@ -266,16 +273,14 @@ async function fetchAndTransmitLocalWeather() {
             const payload = ` +${Math.round(wData.current_weather.temperature)}C ${gData.city || gData.locality || "Local"}`;
             document.getElementById('weatherTemp').value = payload.trim();
             document.getElementById('mockupWeatherLabel').innerText = payload.trim();
-            await transmitWeatherString(payload);
-        } catch (e) { transmitWeatherFallback("Kochi"); }
-    }, () => transmitWeatherFallback("Kochi"));
-}
-
-async function transmitWeatherFallback(city) {
-    const payload = ` +25C ${city}`;
-    document.getElementById('weatherTemp').value = payload.trim();
-    document.getElementById('mockupWeatherLabel').innerText = payload.trim();
-    await transmitWeatherString(payload);
+        } catch (e) {
+            document.getElementById('weatherTemp').value = "+25C Kochi";
+            document.getElementById('mockupWeatherLabel').innerText = "+25C Kochi";
+        }
+    }, () => {
+        document.getElementById('weatherTemp').value = "+25C Kochi";
+        document.getElementById('mockupWeatherLabel').innerText = "+25C Kochi";
+    });
 }
 
 async function transmitWeatherString(weatherStr) {
@@ -304,7 +309,6 @@ async function switchMode(modeId, panelId) {
     document.getElementById('emulatedScreen').style.background = "#04060b";
     document.getElementById('mockupEffects').style.display = "none";
 
-    // FIX 2: Emulation environment configuration changes visibility toggles
     document.getElementById('mockupClock').style.display = (modeId === 0) ? "block" : "none";
     if (modeId === 3) {
         document.getElementById('mockupClock').innerText = ""; 
@@ -332,12 +336,11 @@ async function updateBrightness(val) {
     await writeBLE(packet);
 }
 
-// FIX 2: Corrects frontend behavior to update state variables live on data dispatch
 async function sendScrollText() {
     const textVal = document.getElementById('scrollTextInput').value;
     if(!textVal.trim()) return;
     
-    activeMode = 2; // Shifts locally into scroll text mode rendering state
+    activeMode = 2; 
     document.getElementById('mockupClock').innerText = textVal; 
     
     const encoder = new TextEncoder();
