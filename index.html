@@ -45,10 +45,28 @@
         .mockup-timer-digits { font-family: monospace; font-size: 26px; font-weight: bold; letter-spacing: 2px; color: #fff; text-shadow: 0 0 8px #fff; margin: 0 auto; display: block; }
         .mockup-timer-progress-bg { width: 95%; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 2px; }
         .mockup-timer-progress-fill { width: 100%; height: 100%; background: #00b4ff; box-shadow: 0 0 5px #00b4ff; transition: width 1s linear; }
-        .mockup-effects-wrapper { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
+        
+        /* Advanced Dynamic Mockup Effects Engine Styles */
+        .mockup-effects-wrapper { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
+        .eff-horizon { width: 100%; height: 4px; background: #3b82f6; box-shadow: 0 0 12px #3b82f6, 0 0 20px #3b82f6; position: absolute; left: 0; top: 50%; transform: translateY(-50%); animation: scanHorizon 1.8s ease-in-out infinite; }
+        @keyframes scanHorizon { 0%, 100% { opacity: 0.3; transform: translateY(-50%) scaleY(0.7); } 50% { opacity: 1; transform: translateY(-50%) scaleY(1.5); } }
+        
+        .eff-vortex { width: 44px; height: 44px; border-radius: 50%; border: 3px double transparent; background-image: linear-gradient(#000, #000), linear-gradient(135deg, #0055ff, #ff0055); background-origin: border-box; background-clip: content-box, border-box; position: absolute; top: 10px; left: calc(50% - 22px); box-shadow: 0 0 15px rgba(0,85,255,0.4); animation: rotateVortex 2.5s linear infinite; }
+        @keyframes rotateVortex { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .eff-stream { width: 100%; height: 100%; position: relative; opacity: 0.85; background: radial-gradient(circle at center, transparent 20%, #000 90%); }
+        .eff-stream::before, .eff-stream::after { content: ''; position: absolute; width: 200%; height: 100%; top: 0; left: -50%; background-repeat: repeat-x; background-size: 40px 100%; }
+        .eff-stream::before { background-image: linear-gradient(45deg, transparent 45%, #ec4899 49%, #ec4899 51%, transparent 55%); animation: moveStream 3s linear infinite; }
+        .eff-stream::after { background-image: linear-gradient(-45deg, transparent 45%, #3b82f6 49%, #3b82f6 51%, transparent 55%); animation: moveStream 4s linear infinite reverse; }
+        @keyframes moveStream { 0% { transform: translateX(0) scaleY(0.8); } 100% { transform: translateX(-40px) scaleY(1.2); } }
+        
+        .eff-starburst { width: 100%; height: 100%; background: repeating-linear-gradient(90deg, rgba(239,68,68,0.15) 0px, rgba(239,68,68,0.15) 4px, transparent 4px, transparent 8px); animation: pulseBurst 1.2s steps(4) infinite; }
+        @keyframes pulseBurst { 0%, 100% { filter: hue-rotate(0deg) invert(0); } 50% { filter: hue-rotate(180deg) invert(0.2); } }
+
         @keyframes scrollMockupWeather { 0% { transform: translateX(100px); } 100% { transform: translateX(-120px); } }
         @keyframes scrollMockupCal { 0% { transform: translateX(150px); } 100% { transform: translateX(-220px); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        
         .control-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; backdrop-filter: blur(12px); margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
         .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         .menu-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -72,8 +90,8 @@
         .status-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px #ef4444; }
         .status-dot.connected { background: #10b981; box-shadow: 0 0 8px #10b981; }
         .effects-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .effect-btn { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--glass-border); padding: 14px 10px; border-radius: 14px; color: var(--text-primary); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
-        .effect-btn.active { border-color: #ec4899; background: rgba(236, 72, 153, 0.15); box-shadow: 0 0 12px rgba(236, 72, 153, 0.3); }
+        .effect-btn { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--glass-border); padding: 14px 10px; border-radius: 14px; color: var(--text-primary); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-align: center; }
+        .effect-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
     </style>
 </head>
 <body>
@@ -180,12 +198,12 @@
             </div>
 
             <div id="effectsPanel" class="config-section">
-                <label>Active Light Effect</label>
+                <label>Active Premium Light Effect</label>
                 <div class="effects-list">
-                    <button class="effect-btn" id="eff1" onclick="triggerLightEffect(1)"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i><span>Strobe Light</span></button>
-                    <button class="effect-btn" id="eff2" onclick="triggerLightEffect(2)"><i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i><span>Police Siren</span></button>
-                    <button class="effect-btn" id="eff3" onclick="triggerLightEffect(3)"><i class="fa-solid fa-terminal" style="color: #10b981;"></i><span>Matrix Rain</span></button>
-                    <button class="effect-btn" id="eff4" onclick="triggerLightEffect(4)"><i class="fa-solid fa-rainbow" style="color: #a855f7;"></i><span>Rainbow Lava</span></button>
+                    <button class="effect-btn" id="eff1" onclick="triggerLightEffect(1)"><i class="fa-solid fa-grip-lines" style="color: #3b82f6;"></i><span>Neon Horizon</span></button>
+                    <button class="effect-btn" id="eff2" onclick="triggerLightEffect(2)"><i class="fa-solid fa-circle-notch" style="color: #ec4899;"></i><span>Plasma Vortex</span></button>
+                    <button class="effect-btn" id="eff3" onclick="triggerLightEffect(3)"><i class="fa-solid fa-bezier-curve" style="color: #a855f7;"></i><span>Cyber Stream</span></button>
+                    <button class="effect-btn" id="eff4" onclick="triggerLightEffect(4)"><i class="fa-solid fa-star" style="color: #ef4444;"></i><span>Star Burst</span></button>
                 </div>
                 <label>Effects Intensity Brightness</label>
                 <div class="slider-wrapper">
@@ -226,8 +244,6 @@ document.getElementById('connectBtn').addEventListener('click', async () => {
         bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
         await syncRtcClock();
-        
-        // Fetches weather details and updates device layout state quietly
         await fetchAndAutoTransmitWeather();
     } catch (err) { document.getElementById('statusText').innerText = "Failed"; }
 });
@@ -261,7 +277,6 @@ async function syncRtcClock() {
     await writeBLE(packet);
 }
 
-// FIX: Pulls positioning variables and updates hardware memory buffers silently without modifying active display frames
 async function fetchAndAutoTransmitWeather() {
     if (!navigator.geolocation) { 
         await transmitWeatherString(" +25C Kochi");
@@ -280,8 +295,6 @@ async function fetchAndAutoTransmitWeather() {
             document.getElementById('mockupWeatherLabel').innerText = payload.trim();
             
             await transmitWeatherString(payload);
-            
-            // FIX: Instantly send a sequential packet to rollback the display screen back to the webapp's active view mode index context.
             await forceActiveDisplayMode(activeMode);
         } catch (e) {
             await transmitWeatherString(" +25C Kochi");
@@ -322,9 +335,9 @@ async function switchMode(modeId, panelId) {
     }
     document.getElementById(panelId).classList.add('visible');
 
-    clearInterval(localMockupEffectInterval);
     document.getElementById('emulatedScreen').style.background = "#04060b";
     document.getElementById('mockupEffects').style.display = "none";
+    document.getElementById('mockupEffects').innerHTML = "";
 
     document.getElementById('mockupClock').style.display = (modeId === 0) ? "block" : "none";
     
@@ -364,10 +377,8 @@ async function updateBrightness(val) {
 async function sendScrollText() {
     const textVal = document.getElementById('scrollTextInput').value;
     if(!textVal.trim()) return;
-    
     activeMode = 2; 
     document.getElementById('mockupClock').innerText = textVal; 
-    
     const encoder = new TextEncoder();
     const rawStrBytes = encoder.encode(textVal);
     const packet = new Uint8Array(1 + rawStrBytes.length);
@@ -397,46 +408,26 @@ function updateMockupTimerDisplay() {
 async function triggerLightEffect(effectId) {
     document.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(`eff${effectId}`).classList.add('active');
+    
     document.getElementById('mockupClock').style.display = "none";
     document.getElementById('mockupCalendar').style.display = "none";
     document.getElementById('mockupWeather').style.display = "none";
     document.getElementById('mockupTimer').style.display = "none";
-    document.getElementById('mockupEffects').style.display = "block";
-    clearInterval(localMockupEffectInterval);
-
-    const screenEl = document.getElementById('emulatedScreen');
+    
     const effectsOverlay = document.getElementById('mockupEffects');
-    let toggle = false, hueOffset = 0;
+    effectsOverlay.style.display = "block";
+    effectsOverlay.innerHTML = "";
 
-    if (effectId === 1) { 
-        const strobeColors = ["#ff0000", "#0000ff", "#ffffff", "#ffb400", "#00ff00", "#ff00ff", "#00ffff", "#ff5a00"];
-        let colorIdx = 0, flashCnt = 0, leftActive = true;
-        localMockupEffectInterval = setInterval(() => {
-            toggle = !toggle;
-            if (toggle) {
-                screenEl.style.background = leftActive ? `linear-gradient(90deg, ${strobeColors[colorIdx]} 50%, #04060b 50%)` : `linear-gradient(90deg, #04060b 50%, ${strobeColors[colorIdx]} 50%)`;
-            } else {
-                screenEl.style.background = "#04060b"; flashCnt++;
-                if (flashCnt >= 3) {
-                    flashCnt = 0;
-                    if (leftActive) leftActive = false;
-                    else { leftActive = true; colorIdx = (colorIdx + 1) % strobeColors.length; }
-                }
-            }
-        }, 70);
+    if (effectId === 1) {
+        effectsOverlay.innerHTML = '<div class="eff-horizon"></div>';
+    } else if (effectId === 2) {
+        effectsOverlay.innerHTML = '<div class="eff-vortex"></div>';
+    } else if (effectId === 3) {
+        effectsOverlay.innerHTML = '<div class="eff-stream"></div>';
+    } else if (effectId === 4) {
+        effectsOverlay.innerHTML = '<div class="eff-starburst"></div>';
     }
-    else if (effectId === 2) { 
-        localMockupEffectInterval = setInterval(() => { toggle = !toggle; screenEl.style.background = toggle ? "linear-gradient(90deg, #ff0000 50%, #0000ff 50%)" : "linear-gradient(90deg, #0000ff 50%, #ff0000 50%)"; }, 180);
-    } 
-    else if (effectId === 3) { 
-        screenEl.style.background = "#04060b";
-        effectsOverlay.innerHTML = '<div style="color: #10b981; font-family: monospace; font-size: 8px; text-align: center; margin-top: 4px; overflow: hidden; height: 100%; width: 100%;">1010101010111101</div>';
-        localMockupEffectInterval = setInterval(() => { const textNodes = effectsOverlay.firstChild; if (textNodes) textNodes.innerHTML = Array.from({length: 3}, () => Math.random().toString(2).substring(2, 18)).join('<br>'); }, 200);
-    } 
-    else if (effectId === 4) { 
-        effectsOverlay.innerHTML = '';
-        localMockupEffectInterval = setInterval(() => { hueOffset = (hueOffset + 5) % 360; screenEl.style.background = `linear-gradient(${hueOffset}deg, #ef4444, #3b82f6, #10b981, #f59e0b)`; }, 40);
-    }
+
     const packet = new Uint8Array([0x09, effectId]);
     await writeBLE(packet);
 }
