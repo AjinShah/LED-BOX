@@ -71,7 +71,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Hardware 3D Mockup Container */
         .device-mockup-container {
             perspective: 800px;
             margin-bottom: 24px;
@@ -99,7 +98,6 @@
             transform: rotateX(6deg) rotateY(-3deg);
         }
 
-        /* Matrix Display Screen Emulation */
         .matrix-screen-emulation {
             width: 100%;
             height: 64px;
@@ -125,7 +123,6 @@
             z-index: 10;
         }
 
-        /* Clock State inside Mockup */
         .mockup-clock {
             font-family: monospace;
             font-size: 26px;
@@ -137,7 +134,6 @@
             display: block;
         }
 
-        /* Weather State inside Mockup */
         .mockup-weather-wrapper {
             display: none;
             align-items: center;
@@ -159,29 +155,34 @@
             animation: scrollMockupWeather 8s linear infinite;
         }
 
-        /* Timer State inside Mockup */
+        /* UPDATE 3: Fixed width matching main clock alignment specs */
         .mockup-timer-wrapper {
             display: none;
             flex-direction: column;
             width: 100%;
             justify-content: center;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .mockup-timer-digits {
             font-family: monospace;
-            font-size: 24px;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 2px;
             color: #fff;
-            text-shadow: 0 0 6px #fff;
+            text-shadow: 0 0 8px #fff;
+            margin: 0 auto;
+            display: block;
         }
 
         .mockup-timer-progress-bg {
-            width: 90%;
+            width: 95%;
             height: 4px;
             background: #1e293b;
             border-radius: 2px;
             overflow: hidden;
+            margin-top: 2px;
         }
 
         .mockup-timer-progress-fill {
@@ -192,7 +193,6 @@
             transition: width 1s linear;
         }
 
-        /* Effects Overlay inside Mockup */
         .mockup-effects-wrapper {
             display: none;
             width: 100%;
@@ -212,7 +212,6 @@
             50% { transform: translateY(-4px); }
         }
 
-        /* Connection / Controller Cards */
         .control-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -270,7 +269,6 @@
             color: var(--text-primary);
         }
 
-        /* Configuration Sections */
         .config-section {
             display: none;
             animation: fadeIn 0.4s ease-out forwards;
@@ -298,7 +296,7 @@
         input[type="text"], input[type="number"] {
             width: 100%;
             background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--border-color, #334155);
+            border: 1px solid #334155;
             color: #fff;
             padding: 12px 16px;
             border-radius: 12px;
@@ -349,7 +347,6 @@
             margin-top: 10px;
         }
 
-        /* Sliders */
         .slider-wrapper {
             background: rgba(15, 23, 42, 0.5);
             border-radius: 12px;
@@ -390,11 +387,11 @@
             box-shadow: 0 0 8px #10b981;
         }
 
-        /* Light Effects List */
         .effects-list {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
+            margin-bottom: 16px;
         }
 
         .effect-btn {
@@ -434,7 +431,6 @@
 <div class="phone-wrapper">
     <div class="screen">
         
-        <!-- Header Controls -->
         <div class="header">
             <h1>DeskMate Portal</h1>
             <div style="display: flex; align-items: center; font-size: 12px; color: var(--text-secondary);">
@@ -443,41 +439,35 @@
             </div>
         </div>
 
-        <!-- Dynamic Live Render 3D Mockup -->
         <div class="device-mockup-container">
             <div class="device-mockup">
                 <div class="matrix-screen-emulation" id="emulatedScreen">
                     <div class="matrix-led-overlay"></div>
                     
-                    <!-- Emulated Clock Visual Screen -->
                     <div id="mockupClock" class="mockup-clock">12:00</div>
                     
-                    <!-- Emulated Weather Visual Screen -->
                     <div id="mockupWeather" class="mockup-weather-wrapper">
                         <i class="fa-solid fa-cloud-sun mockup-weather-icon"></i>
                         <span id="mockupWeatherLabel" class="mockup-weather-text">+25C kochi</span>
                     </div>
 
-                    <!-- Emulated Timer Visual Screen -->
+                    <!-- UPDATE 3: Structured to render layout parameters identical to default clock window -->
                     <div id="mockupTimer" class="mockup-timer-wrapper">
-                        <div id="mockupTimerDigits" class="mockup-timer-digits">00:00</div>
+                        <div id="mockupTimerDigits" class="mockup-timer-digits">05:00</div>
                         <div class="mockup-timer-progress-bg">
                             <div id="mockupTimerProgress" class="mockup-timer-progress-fill"></div>
                         </div>
                     </div>
 
-                    <!-- Emulated Light Effects Overlay -->
                     <div id="mockupEffects" class="mockup-effects-wrapper"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Connection Base Handler -->
         <button id="connectBtn" class="btn" style="margin-bottom: 20px;">
             <i class="fa-solid fa-bluetooth"></i> Initialize Connection
         </button>
 
-        <!-- System Application Navigation Control Grid -->
         <div class="grid-menu">
             <div class="menu-item active" onclick="switchMode(0, 'clockPanel')">
                 <i class="fa-regular fa-clock"></i>
@@ -505,10 +495,8 @@
             </div>
         </div>
 
-        <!-- Parameter Configuration Cards -->
         <div class="control-card">
             
-            <!-- Clock Settings -->
             <div id="clockPanel" class="config-section visible">
                 <label>Voxel Display Color</label>
                 <div class="slider-wrapper" style="display: flex; align-items: center; gap: 12px;">
@@ -518,11 +506,10 @@
                 
                 <label>Hardware Brightness</label>
                 <div class="slider-wrapper">
-                    <input type="range" min="5" max="150" value="35" oninput="updateBrightness(this.value)">
+                    <input type="range" class="brightness-slider" min="5" max="150" value="35" oninput="updateBrightness(this.value)">
                 </div>
             </div>
 
-            <!-- Calendar Display Mode Info -->
             <div id="datePanel" class="config-section">
                 <label>Date Layout Engine</label>
                 <p style="margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5;">
@@ -530,21 +517,18 @@
                 </p>
             </div>
 
-            <!-- Scroll Text Settings -->
             <div id="textPanel" class="config-section">
                 <label>Message Content</label>
                 <input type="text" id="scrollTextInput" placeholder="Type a custom scrolling alert...">
                 <button class="btn" onclick="sendScrollText()"><i class="fa-solid fa-paper-plane"></i> Push Message</button>
             </div>
 
-            <!-- Weather Control Panel -->
             <div id="weatherPanel" class="config-section">
                 <label>Geolocated Weather State</label>
                 <input type="text" id="weatherTemp" value="+25C kochi" placeholder="Format: +25C City">
                 <button class="btn btn-secondary" onclick="triggerManualWeather()"><i class="fa-solid fa-location-crosshairs"></i> Refresh Weather</button>
             </div>
 
-            <!-- Overhauled Timer Panel -->
             <div id="timerPanel" class="config-section">
                 <label>Target Duration (Minutes)</label>
                 <input type="number" id="timerMinutes" value="5" min="1" max="99">
@@ -556,7 +540,7 @@
                 <button class="btn btn-secondary" style="margin-top: 10px;" onclick="controlTimer(4)"><i class="fa-solid fa-rotate-left"></i> Reset</button>
             </div>
 
-            <!-- Light Effects System Control Panel -->
+            <!-- UPDATE 1: Integrated dynamic brightness control parameter tracker inside effects layout card -->
             <div id="effectsPanel" class="config-section">
                 <label>Active Light Effect</label>
                 <div class="effects-list">
@@ -577,6 +561,11 @@
                         <span>Rainbow Lava</span>
                     </button>
                 </div>
+
+                <label>Effects Intensity Brightness</label>
+                <div class="slider-wrapper">
+                    <input type="range" class="brightness-slider" min="5" max="150" value="35" oninput="updateBrightness(this.value)">
+                </div>
             </div>
             
         </div>
@@ -590,18 +579,15 @@ const CHARACTERISTIC_UUID = "4fa10002-e89b-4a9e-912c-21a7420896aa";
 let bleDevice = null;
 let bleChar = null;
 
-// Mockup state tracking
 let activeMode = 0;
 let uiHexColor = "#00ff64";
 let timerValSeconds = 300; 
 let timerRemainingVal = 300;
 let timerRunningState = false;
 let timerInterval = null;
-
-// Mockup Light Loop
 let localMockupEffectInterval = null;
 
-// Clock update for emulated mockup
+// Primary dynamic mockup time syncer loop
 setInterval(() => {
     const now = new Date();
     const h = String(now.getHours()).padStart(2, '0');
@@ -664,12 +650,7 @@ async function writeBLE(arrayBuffer) {
 
 async function syncRtcClock() {
     const now = new Date();
-    const packet = new Uint8Array([
-        0x04,
-        now.getHours(),
-        now.getMinutes(),
-        now.getSeconds()
-    ]);
+    const packet = new Uint8Array([0x04, now.getHours(), now.getMinutes(), now.getSeconds()]);
     await writeBLE(packet);
 }
 
@@ -678,7 +659,6 @@ async function fetchAndTransmitLocalWeather() {
         transmitWeatherFallback("Kochi");
         return;
     }
-    
     navigator.geolocation.getCurrentPosition(async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
@@ -694,7 +674,6 @@ async function fetchAndTransmitLocalWeather() {
             const payload = ` +${tempVal}C ${cityName}`;
             document.getElementById('weatherTemp').value = payload.trim();
             document.getElementById('mockupWeatherLabel').innerText = payload.trim();
-            
             await transmitWeatherString(payload);
         } catch (e) {
             transmitWeatherFallback("Kochi");
@@ -735,7 +714,6 @@ async function switchMode(modeId, panelId) {
     event.currentTarget.classList.add('active');
     document.getElementById(panelId).classList.add('visible');
 
-    // Reset mockup animations when switching away from custom effects
     if (modeId !== 6) {
         clearInterval(localMockupEffectInterval);
         document.getElementById('emulatedScreen').style.background = "#04060b";
@@ -762,7 +740,9 @@ async function updateColor(hexColor) {
     await writeBLE(packet);
 }
 
+// UPDATE 1: Combined slider updating interface maps to sync both slider UI values across sections
 async function updateBrightness(val) {
+    document.querySelectorAll('.brightness-slider').forEach(slider => slider.value = val);
     const opacity = val / 150;
     document.querySelector('.matrix-screen-emulation').style.opacity = Math.max(0.3, opacity);
     const packet = new Uint8Array([0x02, parseInt(val)]);
@@ -832,7 +812,6 @@ async function triggerLightEffect(effectId) {
     document.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(`eff${effectId}`).classList.add('active');
 
-    // Display the effects overlay on the 3D mockup screen
     document.getElementById('mockupClock').style.display = "none";
     document.getElementById('mockupWeather').style.display = "none";
     document.getElementById('mockupTimer').style.display = "none";
@@ -840,38 +819,52 @@ async function triggerLightEffect(effectId) {
 
     clearInterval(localMockupEffectInterval);
 
-    // Mockup Canvas Emulation Loop
     const screenEl = document.getElementById('emulatedScreen');
     const effectsOverlay = document.getElementById('mockupEffects');
     let toggle = false;
     let hueOffset = 0;
 
-    if (effectId === 1) { // Multi-color Strobe Light Mockup
-        const strobeColors = ["#ef4444", "#10b981", "#3b82f6", "#eab308", "#ec4899", "#06b6d4"];
-        let colorIndex = 0;
+    // UPDATE 2: UI emulation engine replicates the 3x split flash system perfectly
+    if (effectId === 1) { 
+        const strobeColors = ["#ff0000", "#0000ff", "#ffffff", "#ffb400", "#00ff00", "#ff00ff", "#00ffff", "#ff5a00"];
+        let colorIdx = 0;
+        let flashCnt = 0;
+        let leftActive = true;
+        
         localMockupEffectInterval = setInterval(() => {
             toggle = !toggle;
             if (toggle) {
-                screenEl.style.backgroundColor = strobeColors[colorIndex];
-                colorIndex = (colorIndex + 1) % strobeColors.length;
+                const activeColor = strobeColors[colorIdx];
+                screenEl.style.background = leftActive 
+                    ? `linear-gradient(90deg, ${activeColor} 50%, #04060b 50%)`
+                    : `linear-gradient(90deg, #04060b 50%, ${activeColor} 50%)`;
             } else {
-                screenEl.style.backgroundColor = "#04060b";
+                screenEl.style.background = "#04060b";
+                flashCnt++;
+                if (flashCnt >= 3) {
+                    flashCnt = 0;
+                    if (leftActive) {
+                        leftActive = false;
+                    } else {
+                        leftActive = true;
+                        colorIdx = (colorIdx + 1) % strobeColors.length;
+                    }
+                }
             }
-        }, 80);
+        }, 70);
     }
-    else if (effectId === 2) { // Police Siren Mockup
+    else if (effectId === 2) { 
         localMockupEffectInterval = setInterval(() => {
             toggle = !toggle;
             screenEl.style.background = toggle 
                 ? "linear-gradient(90deg, #ff0000 50%, #0000ff 50%)" 
                 : "linear-gradient(90deg, #0000ff 50%, #ff0000 50%)";
-        }, 150);
+        }, 180);
     } 
-    else if (effectId === 3) { // Matrix Rain Mockup
+    else if (effectId === 3) { 
         screenEl.style.background = "#04060b";
         effectsOverlay.innerHTML = '<div style="color: #10b981; font-family: monospace; font-size: 8px; text-align: center; margin-top: 4px; overflow: hidden; height: 100%; width: 100%;">1010101010111101<br>0101100101110010<br>1101010001010111</div>';
         localMockupEffectInterval = setInterval(() => {
-            // Emulate flashing Matrix drips
             const textNodes = effectsOverlay.firstChild;
             if (textNodes) {
                 textNodes.innerHTML = Array.from({length: 3}, () => 
@@ -880,7 +873,7 @@ async function triggerLightEffect(effectId) {
             }
         }, 200);
     } 
-    else if (effectId === 4) { // Rainbow Lava Mockup
+    else if (effectId === 4) { 
         effectsOverlay.innerHTML = '';
         localMockupEffectInterval = setInterval(() => {
             hueOffset = (hueOffset + 5) % 360;
@@ -888,7 +881,6 @@ async function triggerLightEffect(effectId) {
         }, 40);
     }
 
-    // Direct write to hardware via BLE
     const packet = new Uint8Array([0x09, effectId]);
     await writeBLE(packet);
 }
