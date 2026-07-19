@@ -3,445 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeskMate Premium Control</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>DeskMate Controller Platform</title>
     <style>
         :root {
-            --bg-grad-start: #060b19; --bg-grad-end: #0c152b; --glass-bg: rgba(30, 41, 59, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.08); --accent-glow: rgba(59, 130, 246, 0.5);
-            --neon-blue: #3b82f6; --neon-green: #10b981; --neon-orange: #f59e0b;
-            --text-primary: #f8fafc; --text-secondary: #94a3b8;
+            --bg-base: #0f172a;
+            --bg-surface: #1e293b;
+            --accent: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
-        * { box-sizing: border-box; outline: none; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: radial-gradient(circle at top, #111a36 0%, var(--bg-grad-start) 70%, var(--bg-grad-end) 100%);
-            color: var(--text-primary); min-height: 100vh; margin: 0; padding: 20px;
-            display: flex; justify-content: center; align-items: center;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
         }
-        .phone-wrapper {
-            width: 100%; max-width: 410px; background: linear-gradient(145deg, #131e3a, #0b1122);
-            border-radius: 40px; padding: 10px; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.1);
-            border: 4px solid #1e293b;
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
         }
-        .screen { background: #080d1a; border-radius: 32px; padding: 24px 20px; overflow-y: auto; max-height: 850px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .header h1 { font-size: 20px; font-weight: 700; margin: 0; background: linear-gradient(to right, #3b82f6, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .device-mockup-container { perspective: 800px; margin-bottom: 24px; }
-        .device-mockup {
-            width: 100%; height: 110px; background: linear-gradient(135deg, #2a2f3d 0%, #151821 100%);
-            border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 25px rgba(59, 130, 246, 0.15);
-            transform: rotateX(12deg) rotateY(-8deg); transform-style: preserve-3d; position: relative; padding: 12px; display: flex; align-items: center; justify-content: center;
+        .panel {
+            background-color: var(--bg-surface);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
-        .matrix-screen-emulation { width: 100%; height: 64px; background: #04060b; border-radius: 6px; border: 2px solid #2d3748; box-shadow: inset 0 0 10px #000; position: relative; overflow: hidden; display: flex; align-items: center; padding: 0 10px; }
-        .matrix-led-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.7) 100%), repeating-linear-gradient(90deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 3px, rgba(0,0,0,0.5) 4px), repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 3px, rgba(0,0,0,0.5) 4px); pointer-events: none; z-index: 10; }
-        .mockup-clock { font-family: monospace; font-size: 26px; font-weight: bold; letter-spacing: 2px; color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); margin: 0 auto; display: block; }
-        .mockup-calendar-wrapper { display: none; width: 100%; overflow: hidden; }
-        .mockup-calendar-text { font-family: monospace; font-size: 14px; white-space: nowrap; color: #fff; display: inline-block; animation: scrollMockupCal 10s linear infinite; }
-        .mockup-weather-wrapper { display: none; align-items: center; width: 100%; gap: 12px; }
-        .mockup-weather-icon { font-size: 20px; color: #f59e0b; animation: float 3s ease-in-out infinite; }
-        .mockup-weather-text { font-family: monospace; font-size: 15px; white-space: nowrap; color: #fff; animation: scrollMockupWeather 8s linear infinite; }
-        .mockup-timer-wrapper { display: none; flex-direction: column; width: 100%; justify-content: center; align-items: center; gap: 4px; }
-        .mockup-timer-digits { font-family: monospace; font-size: 26px; font-weight: bold; letter-spacing: 2px; color: #fff; text-shadow: 0 0 8px #fff; margin: 0 auto; display: block; }
-        .mockup-timer-progress-bg { width: 95%; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 2px; }
-        .mockup-timer-progress-fill { width: 100%; height: 100%; background: #00b4ff; box-shadow: 0 0 5px #00b4ff; transition: width 1s linear; }
-        
-        /* Effects Styles */
-        .mockup-effects-wrapper { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
-        .eff-horizon { width: 100%; height: 4px; background: #3b82f6; box-shadow: 0 0 12px #3b82f6, 0 0 20px #3b82f6; position: absolute; left: 0; top: 50%; transform: translateY(-50%); animation: scanHorizon 1.8s ease-in-out infinite; }
-        @keyframes scanHorizon { 0%, 100% { opacity: 0.3; transform: translateY(-50%) scaleY(0.7); } 50% { opacity: 1; transform: translateY(-50%) scaleY(1.5); } }
-        .eff-vortex { width: 44px; height: 44px; border-radius: 50%; border: 3px double transparent; background-image: linear-gradient(#000, #000), linear-gradient(135deg, #0055ff, #ff0055); background-origin: border-box; background-clip: content-box, border-box; position: absolute; top: 10px; left: calc(50% - 22px); box-shadow: 0 0 15px rgba(0,85,255,0.4); animation: rotateVortex 2.5s linear infinite; }
-        @keyframes rotateVortex { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .eff-stream { width: 100%; height: 100%; position: relative; opacity: 0.85; background: radial-gradient(circle at center, transparent 20%, #000 90%); }
-        .eff-stream::before, .eff-stream::after { content: ''; position: absolute; width: 200%; height: 100%; top: 0; left: -50%; background-repeat: repeat-x; background-size: 40px 100%; }
-        .eff-stream::before { background-image: linear-gradient(45deg, transparent 45%, #ec4899 49%, #ec4899 51%, transparent 55%); animation: moveStream 3s linear infinite; }
-        .eff-stream::after { background-image: linear-gradient(-45deg, transparent 45%, #3b82f6 49%, #3b82f6 51%, transparent 55%); animation: moveStream 4s linear infinite reverse; }
-        @keyframes moveStream { 0% { transform: translateX(0) scaleY(0.8); } 100% { transform: translateX(-40px) scaleY(1.2); } }
-        .eff-starburst { width: 100%; height: 100%; background: repeating-linear-gradient(90deg, rgba(239,68,68,0.15) 0px, rgba(239,68,68,0.15) 4px, transparent 4px, transparent 8px); animation: pulseBurst 1.2s steps(4) infinite; }
-        @keyframes pulseBurst { 0%, 100% { filter: hue-rotate(0deg) invert(0); } 50% { filter: hue-rotate(180deg) invert(0.2); } }
-
-        @keyframes scrollMockupWeather { 0% { transform: translateX(100px); } 100% { transform: translateX(-120px); } }
-        @keyframes scrollMockupCal { 0% { transform: translateX(150px); } 100% { transform: translateX(-220px); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        
-        .control-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; backdrop-filter: blur(12px); margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
-        .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-        .menu-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .menu-item i { font-size: 20px; color: var(--text-secondary); }
-        .menu-item.active { border-color: var(--neon-blue); background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 15px rgba(59, 130, 246, 0.25); transform: scale(1.03); }
-        .menu-item.active i { color: var(--neon-blue); }
-        .menu-item span { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
-        .menu-item.active span { color: var(--text-primary); }
-        .config-section { display: none; animation: fadeIn 0.4s ease-out forwards; }
-        .config-section.visible { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 10px; font-weight: 700; }
-        input[type="text"], input[type="number"] { width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 16px; }
-        .btn { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        .btn-disconnect { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-        .btn-secondary { background: rgba(30, 41, 59, 0.8); border: 1px solid var(--glass-border); box-shadow: none; }
-        .flex-row { display: flex; gap: 10px; margin-top: 10px; }
-        .slider-wrapper { background: rgba(15, 23, 42, 0.5); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
-        input[type="range"] { -webkit-appearance: none; width: 100%; background: #334155; height: 6px; border-radius: 3px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 0 8px rgba(0,0,0,0.5); }
-        .status-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px #ef4444; }
-        .status-dot.connected { background: #10b981; box-shadow: 0 0 8px #10b981; }
-        .effects-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .effect-btn { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--glass-border); padding: 14px 10px; border-radius: 14px; color: var(--text-primary); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-align: center; }
-        .effect-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
+        h2 { margin-top: 0; font-size: 1.25rem; border-bottom: 1px solid #334155; padding-bottom: 8px;}
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: #2563eb; }
+        .btn-disconnect { background-color: #ef4444; }
+        .btn-disconnect:hover { background-color: #dc2626; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        input[type="range"], input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            background: #334155;
+            border: 1px solid #475569;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .status { font-weight: bold; color: #ef4444; }
+        .connected { color: #10b981; }
     </style>
 </head>
 <body>
 
-<div class="phone-wrapper">
-    <div class="screen">
-        <div class="header">
-            <h1>DeskMate Portal</h1>
-            <div style="display: flex; align-items: center; font-size: 12px; color: var(--text-secondary);">
-                <span id="statusIndicator" class="status-dot"></span>
-                <span id="statusText">Offline</span>
+<div class="container">
+    <div class="panel">
+        <h2>System Link Status</h2>
+        <p>Status: <span id="statusLabel" class="status">Disconnected</span></p>
+        <button id="connectBtn" class="btn" onclick="initiateBleLink()">Connect DeskMate</button>
+    </div>
+
+    <div id="controls" style="display:none;">
+        <!-- Core Matrix Configuration Elements -->
+        <div class="panel">
+            <h2>Panel Profile Settings</h2>
+            <label>Master Panel Color</label>
+            <input type="color" id="panelColor" value="#00ff64" onchange="pushColorUpdate()" style="width:100%; height:40px; border:none; border-radius:6px; background:none; cursor:pointer;">
+            
+            <label>Active Matrix Brightness</label>
+            <input type="range" id="brightnessRange" min="0" max="255" value="35" oninput="pushBrightnessUpdate()">
+            
+            <button class="btn" onclick="syncHardwareClock()" style="margin-top:15px; background-color:#10b981;">Sync Realtime System Clock</button>
+        </div>
+
+        <!-- Target App Interface Screen Modes -->
+        <div class="panel">
+            <h2>Display Screen Registry Selector</h2>
+            <div class="grid">
+                <button class="btn" onclick="pushDisplayMode(0)">Digital Clock</button>
+                <button class="btn" onclick="pushDisplayMode(1)">Scroll Date</button>
+                <button class="btn" onclick="pushDisplayMode(4)">Weather Node</button>
+                <button class="btn" onclick="pushDisplayMode(5)">Timer State</button>
+                <button class="btn" onclick="pushDisplayMode(2)">Clear Screen</button>
             </div>
         </div>
 
-        <div class="device-mockup-container">
-            <div class="device-mockup">
-                <div class="matrix-screen-emulation" id="emulatedScreen">
-                    <div class="matrix-led-overlay"></div>
-                    <div id="mockupClock" class="mockup-clock">12:00</div>
-                    <div id="mockupCalendar" class="mockup-calendar-wrapper">
-                        <span id="mockupCalendarLabel" class="mockup-calendar-text"></span>
-                    </div>
-                    <div id="mockupWeather" class="mockup-weather-wrapper">
-                        <i class="fa-solid fa-cloud-sun mockup-weather-icon"></i>
-                        <span id="mockupWeatherLabel" class="mockup-weather-text">+25C kochi</span>
-                    </div>
-                    <div id="mockupTimer" class="mockup-timer-wrapper">
-                        <div id="mockupTimerDigits" class="mockup-timer-digits">05:00</div>
-                        <div class="mockup-timer-progress-bg">
-                            <div id="mockupTimerProgress" class="mockup-timer-progress-fill"></div>
-                        </div>
-                    </div>
-                    <div id="mockupEffects" class="mockup-effects-wrapper"></div>
-                </div>
-            </div>
+        <!-- System Message Registry Updates -->
+        <div class="panel">
+            <h2>Custom String Feed Overrides</h2>
+            <label>Scrolling Text Field</label>
+            <input type="text" id="scrollTextInput" placeholder="Enter custom text message...">
+            <button class="btn" onclick="pushTextPayload()" style="margin-top:8px;">Transmit Text Payload</button>
+
+            <label>Weather Override Interface (+25C Kochi)</label>
+            <input type="text" id="weatherTextInput" value=" +25C Kochi">
+            <button class="btn" onclick="pushWeatherPayload()" style="margin-top:8px;">Transmit Weather Asset</button>
         </div>
 
-        <button id="connectBtn" class="btn" style="margin-bottom: 20px;">
-            <i class="fa-solid fa-bluetooth"></i> Initialize Connection
-        </button>
-
-        <div class="grid-menu">
-            <div class="menu-item active" onclick="switchMode(0, 'clockPanel')">
-                <i class="fa-regular fa-clock"></i><span>Clock</span>
-            </div>
-            <div class="menu-item" onclick="switchMode(1, 'datePanel')">
-                <i class="fa-regular fa-calendar"></i><span>Calendar</span>
-            </div>
-            <div class="menu-item" onclick="switchMode(3, 'textPanel')">
-                <i class="fa-solid fa-font"></i><span>Message</span>
-            </div>
-            <div class="menu-item" onclick="switchMode(4, 'weatherPanel')">
-                <i class="fa-solid fa-cloud-sun-rain"></i><span>Weather</span>
-            </div>
-            <div class="menu-item" onclick="switchMode(5, 'timerPanel')">
-                <i class="fa-solid fa-hourglass-half"></i><span>Timer</span>
-            </div>
-            <div class="menu-item" onclick="switchMode(6, 'effectsPanel')">
-                <i class="fa-solid fa-wand-magic-sparkles"></i><span>Effects</span>
-            </div>
-        </div>
-
-        <div class="control-card">
-            <div id="clockPanel" class="config-section visible">
-                <label>Voxel Display Color</label>
-                <div class="slider-wrapper" style="display: flex; align-items: center; gap: 12px;">
-                    <input type="color" id="systemColor" value="#00ff64" style="border: none; width: 50px; height: 40px; border-radius: 8px; background: none; cursor: pointer;" oninput="updateColor(this.value)">
-                    <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Select custom color hex</span>
-                </div>
-                <label>Hardware Brightness</label>
-                <div class="slider-wrapper">
-                    <input type="range" class="brightness-slider" min="5" max="150" value="35" oninput="updateBrightness(this.value)">
-                </div>
-            </div>
-
-            <div id="datePanel" class="config-section">
-                <label>Date Layout Engine</label>
-                <p style="margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5;">
-                    Automatically synchronizes with your connected device’s calendar systems to display complete date details on screen.
-                </p>
-            </div>
-
-            <div id="textPanel" class="config-section">
-                <label>Message Content</label>
-                <input type="text" id="scrollTextInput" placeholder="Type a custom scrolling alert...">
-                <button class="btn" onclick="sendScrollText()"><i class="fa-solid fa-paper-plane"></i> Push Message</button>
-            </div>
-
-            <div id="weatherPanel" class="config-section">
-                <label>Geolocated Weather State</label>
-                <input type="text" id="weatherTemp" value="+25C kochi" placeholder="Format: +25C City">
-                <button class="btn btn-secondary" onclick="triggerManualWeather()"><i class="fa-solid fa-location-crosshairs"></i> Refresh Weather</button>
-            </div>
-
-            <div id="timerPanel" class="config-section">
-                <label>Target Duration (Minutes)</label>
-                <input type="number" id="timerMinutes" value="5" min="1" max="99">
-                <button class="btn" onclick="controlTimer(1)"><i class="fa-solid fa-hourglass-start"></i> Sync Target Time</button>
-                <div class="flex-row">
-                    <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="controlTimer(2)"><i class="fa-solid fa-play"></i> Start</button>
-                    <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706);" onclick="controlTimer(3)"><i class="fa-solid fa-pause"></i> Pause</button>
-                </div>
-                <button class="btn btn-secondary" style="margin-top: 10px;" onclick="controlTimer(4)"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-            </div>
-
-            <div id="effectsPanel" class="config-section">
-                <label>Active Premium Light Effect</label>
-                <div class="effects-list">
-                    <button class="effect-btn" id="eff1" onclick="triggerLightEffect(1)"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i><span>Strobe Light</span></button>
-                    <button class="effect-btn" id="eff2" onclick="triggerLightEffect(2)"><i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i><span>Police Siren</span></button>
-                    <button class="effect-btn" id="eff3" onclick="triggerLightEffect(3)"><i class="fa-solid fa-terminal" style="color: #10b981;"></i><span>Matrix Rain</span></button>
-                    <button class="effect-btn" id="eff4" onclick="triggerLightEffect(4)"><i class="fa-solid fa-rainbow" style="color: #a855f7;"></i><span>Rainbow Lava</span></button>
-                    <button class="effect-btn" id="eff5" onclick="triggerLightEffect(5)"><i class="fa-solid fa-grip-lines" style="color: #3b82f6;"></i><span>Neon Horizon</span></button>
-                    <button class="effect-btn" id="eff6" onclick="triggerLightEffect(6)"><i class="fa-solid fa-circle-notch" style="color: #ec4899;"></i><span>Plasma Vortex</span></button>
-                    <button class="effect-btn" id="eff7" onclick="triggerLightEffect(7)"><i class="fa-solid fa-bezier-curve" style="color: #a855f7;"></i><span>Cyber Stream</span></button>
-                    <button class="effect-btn" id="eff8" onclick="triggerLightEffect(8)"><i class="fa-solid fa-star" style="color: #ef4444;"></i><span>Star Burst</span></button>
-                </div>
-                <label>Effects Intensity Brightness</label>
-                <div class="slider-wrapper">
-                    <input type="range" class="brightness-slider" min="5" max="150" value="35" oninput="updateBrightness(this.value)">
-                </div>
+        <!-- Light Effect Triggers Including Target Heartbeat Modification -->
+        <div class="panel">
+            <h2>Dynamic Light Effect Arrays</h2>
+            <div class="grid-3">
+                <button class="btn" onclick="triggerLightEffect(1)">Strobe</button>
+                <button class="btn" onclick="triggerLightEffect(2)">Siren</button>
+                <button class="btn" onclick="triggerLightEffect(3)">Matrix</button>
+                <button class="btn" onclick="triggerLightEffect(4)">Lava</button>
+                <!-- Target Update Mapping for Effect ID 5: Neon Heartbeat -->
+                <button class="btn" onclick="triggerLightEffect(5)" style="background-color: #ec4899;">Heartbeat</button>
+                <button class="btn" onclick="triggerLightEffect(6)">Vortex</button>
+                <button class="btn" onclick="triggerLightEffect(7)">Cyber</button>
+                <button class="btn" onclick="triggerLightEffect(8)">Burst</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+// BLE Stack Registry IDs
 const SERVICE_UUID = "4fa10001-e89b-4a9e-912c-21a7420896aa";
 const CHARACTERISTIC_UUID = "4fa10002-e89b-4a9e-912c-21a7420896aa";
 
-let bleDevice = null, bleChar = null, activeMode = 0;
-let uiHexColor = "#00ff64", timerValSeconds = 300, timerRemainingVal = 300;
-let timerRunningState = false, timerInterval = null, localMockupEffectInterval = null;
+let targetDevice = null;
+let targetCharacteristic = null;
 
-setInterval(() => {
-    const now = new Date();
-    if(document.getElementById('mockupClock') && activeMode === 0) {
-        document.getElementById('mockupClock').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    }
-}, 1000);
-
-document.getElementById('connectBtn').addEventListener('click', async () => {
-    if (bleDevice && bleDevice.gatt.connected) { await bleDevice.gatt.disconnect(); onDisconnected(); return; }
+async function initiateBleLink() {
     try {
-        bleDevice = await navigator.bluetooth.requestDevice({ filters: [{ services: [SERVICE_UUID] }], optionalServices: [SERVICE_UUID] });
-        document.getElementById('statusText').innerText = "Connecting...";
-        const server = await bleDevice.gatt.connect();
-        const service = await server.getPrimaryService(SERVICE_UUID);
-        bleChar = await service.getCharacteristic(CHARACTERISTIC_UUID);
-        document.getElementById('statusText').innerText = "DeskMate Connected";
-        document.getElementById('statusIndicator').className = "status-dot connected";
-        document.getElementById('connectBtn').innerHTML = '<i class="fa-solid fa-unlink"></i> Disconnect';
-        document.getElementById('connectBtn').classList.add('btn-disconnect');
-        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        statusLabel.textContent = "Searching...";
+        targetDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ name: 'DeskMate' }],
+            optionalServices: [SERVICE_UUID]
+        });
 
-        await syncRtcClock();
-        await fetchAndAutoTransmitWeather();
-    } catch (err) { document.getElementById('statusText').innerText = "Failed"; }
-});
+        targetDevice.addEventListener('gattserverdisconnected', onBleConnectionDropped);
+        const gattServer = await targetDevice.gatt.connect();
+        const networkService = await gattServer.getPrimaryService(SERVICE_UUID);
+        targetCharacteristic = await networkService.getCharacteristic(CHARACTERISTIC_UUID);
 
-function onDisconnected() {
-    bleDevice = null; bleChar = null;
-    document.getElementById('statusText').innerText = "Offline";
-    document.getElementById('statusIndicator').className = "status-dot";
-    document.getElementById('connectBtn').innerHTML = '<i class="fa-solid fa-bluetooth"></i> Initialize Connection';
-    document.getElementById('connectBtn').classList.remove('btn-disconnect');
-}
-
-async function writeBLE(arrayBuffer) {
-    if (!bleChar) return;
-    try { await bleChar.writeValueWithoutResponse(arrayBuffer); } catch (e) { console.error(e); }
-}
-
-async function syncRtcClock() {
-    const now = new Date();
-    const packet = new Uint8Array([
-        0x04, now.getHours(), now.getMinutes(), now.getSeconds(),
-        now.getDate(), now.getDay(), (now.getFullYear() >> 8) & 0xFF, now.getFullYear() & 0xFF, now.getMonth() + 1
-    ]);
-    await writeBLE(packet);
-}
-
-async function fetchAndAutoTransmitWeather() {
-    if (!navigator.geolocation) { 
-        await transmitWeatherString(" +25C Kochi");
-        await forceActiveDisplayMode(activeMode);
-        return; 
+        statusLabel.textContent = "Connected";
+        statusLabel.className = "status connected";
+        connectBtn.textContent = "Disconnect Device";
+        connectBtn.className = "btn btn-disconnect";
+        connectBtn.setAttribute("onclick", "disconnectBleLink()");
+        document.getElementById("controls").style.display = "block";
+        
+        // Auto Sync Clock on Handshake
+        syncHardwareClock();
+    } catch (err) {
+        console.error(err);
+        statusLabel.textContent = "Connection Failure";
+        statusLabel.className = "status";
     }
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`);
-            const wData = await wRes.json();
-            const gRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
-            const gData = await gRes.json();
-            const payload = ` +${Math.round(wData.current_weather.temperature)}C ${gData.city || gData.locality || "Local"}`;
-            
-            document.getElementById('weatherTemp').value = payload.trim();
-            document.getElementById('mockupWeatherLabel').innerText = payload.trim();
-            
-            await transmitWeatherString(payload);
-            await forceActiveDisplayMode(activeMode);
-        } catch (e) {
-            await transmitWeatherString(" +25C Kochi");
-            await forceActiveDisplayMode(activeMode);
-        }
-    }, async () => {
-        await transmitWeatherString(" +25C Kochi");
-        await forceActiveDisplayMode(activeMode);
-    });
 }
 
-async function forceActiveDisplayMode(modeIndex) {
-    const packet = new Uint8Array([0x03, modeIndex]);
-    await writeBLE(packet);
-}
-
-async function transmitWeatherString(weatherStr) {
-    const encoder = new TextEncoder();
-    const textBytes = encoder.encode(weatherStr);
-    const packet = new Uint8Array(2 + textBytes.length);
-    packet[0] = 0x07; packet[1] = 0x01; packet.set(textBytes, 2);
-    await writeBLE(packet);
-}
-
-async function triggerManualWeather() {
-    const inputVal = document.getElementById('weatherTemp').value;
-    document.getElementById('mockupWeatherLabel').innerText = inputVal;
-    await transmitWeatherString(inputVal);
-}
-
-async function switchMode(modeId, panelId) {
-    activeMode = modeId;
-    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-    document.querySelectorAll('.config-section').forEach(sec => sec.classList.remove('visible'));
-    
-    if (event && event.currentTarget) { event.currentTarget.classList.add('active'); }
-    document.getElementById(panelId).classList.add('visible');
-
-    clearInterval(localMockupEffectInterval);
-    document.getElementById('emulatedScreen').style.background = "#04060b";
-    document.getElementById('mockupEffects').style.display = "none";
-    document.getElementById('mockupEffects').innerHTML = "";
-
-    document.getElementById('mockupClock').style.display = (modeId === 0) ? "block" : "none";
-    
-    if (modeId === 1) {
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('mockupCalendarLabel').innerText = new Date().toLocaleDateString('en-US', options);
-        document.getElementById('mockupCalendar').style.display = "block";
-    } else {
-        document.getElementById('mockupCalendar').style.display = "none";
+function disconnectBleLink() {
+    if (targetDevice && targetDevice.gatt.connected) {
+        targetDevice.gatt.disconnect();
     }
+}
 
-    if (modeId === 3) {
-        document.getElementById('mockupClock').innerText = ""; 
-        document.getElementById('mockupClock').style.display = "block";
+function onBleConnectionDropped() {
+    statusLabel.textContent = "Disconnected";
+    statusLabel.className = "status";
+    connectBtn.textContent = "Connect DeskMate";
+    connectBtn.className = "btn";
+    connectBtn.setAttribute("onclick", "initiateBleLink()");
+    document.getElementById("controls").style.display = "none";
+}
+
+async function transmitPayload(bufferArray) {
+    if (!targetCharacteristic) return;
+    try {
+        await targetCharacteristic.writeValueWithoutResponse(new Uint8Array(bufferArray));
+    } catch (err) {
+        console.error("Transmission fault:", err);
     }
-    document.getElementById('mockupWeather').style.display = (modeId === 4) ? "flex" : "none";
-    document.getElementById('mockupTimer').style.display = (modeId === 5) ? "flex" : "none";
-
-    await forceActiveDisplayMode(modeId);
 }
 
-async function updateColor(hexColor) {
-    uiHexColor = hexColor;
-    document.getElementById('mockupClock').style.color = hexColor;
-    document.getElementById('mockupClock').style.textShadow = `0 0 8px ${hexColor}`;
-    const packet = new Uint8Array([0x01, parseInt(hexColor.substr(1, 2), 16), parseInt(hexColor.substr(3, 2), 16), parseInt(hexColor.substr(5, 2), 16)]);
-    await writeBLE(packet);
+function pushColorUpdate() {
+    const hex = document.getElementById("panelColor").value;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    transmitPayload([0x01, r, g, b]);
 }
 
-async function updateBrightness(val) {
-    document.querySelectorAll('.brightness-slider').forEach(slider => slider.value = val);
-    document.querySelector('.matrix-screen-emulation').style.opacity = Math.max(0.3, val / 150);
-    const packet = new Uint8Array([0x02, parseInt(val)]);
-    await writeBLE(packet);
+function pushBrightnessUpdate() {
+    const brightness = parseInt(document.getElementById("brightnessRange").value);
+    transmitPayload([0x02, brightness]);
 }
 
-async function sendScrollText() {
-    const textVal = document.getElementById('scrollTextInput').value;
-    if(!textVal.trim()) return;
-    activeMode = 2; 
-    document.getElementById('mockupClock').innerText = textVal; 
-    const encoder = new TextEncoder();
-    const rawStrBytes = encoder.encode(textVal);
-    const packet = new Uint8Array(1 + rawStrBytes.length);
-    packet[0] = 0x06; packet.set(rawStrBytes, 1);
-    await writeBLE(packet);
+function pushDisplayMode(modeIndex) {
+    transmitPayload([0x03, modeIndex]);
 }
 
-async function controlTimer(actionCode) {
-    const minutesSet = parseInt(document.getElementById('timerMinutes').value) || 5;
-    if (actionCode === 1) { 
-        timerValSeconds = minutesSet * 60; timerRemainingVal = timerValSeconds; timerRunningState = false;
-        clearInterval(timerInterval); updateMockupTimerDisplay();
-    } else if (actionCode === 2) { 
-        timerRunningState = true; clearInterval(timerInterval);
-        timerInterval = setInterval(() => { if (timerRemainingVal > 0) { timerRemainingVal--; updateMockupTimerDisplay(); } else { timerRunningState = false; clearInterval(timerInterval); } }, 1000);
-    } else if (actionCode === 3) { timerRunningState = false; clearInterval(timerInterval); }
-    else if (actionCode === 4) { timerRemainingVal = timerValSeconds; timerRunningState = false; clearInterval(timerInterval); updateMockupTimerDisplay(); }
-    const packet = new Uint8Array([0x08, actionCode, (minutesSet >> 8) & 0xFF, minutesSet & 0xFF, 0x00]);
-    await writeBLE(packet);
+function triggerLightEffect(effectId) {
+    transmitPayload([0x09, effectId]);
 }
 
-function updateMockupTimerDisplay() {
-    document.getElementById('mockupTimerDigits').innerText = `${String(Math.floor(timerRemainingVal / 60)).padStart(2, '0')}:${String(timerRemainingVal % 60).padStart(2, '0')}`;
-    document.getElementById('mockupTimerProgress').style.width = `${timerValSeconds > 0 ? (timerRemainingVal / timerValSeconds) * 100 : 0}%`;
+function pushTextPayload() {
+    const rawText = document.getElementById("scrollTextInput").value;
+    const encodeArray = new TextEncoder().encode(rawText);
+    const outputBuffer = new Uint8Array(1 + encodeArray.length);
+    outputBuffer[0] = 0x06; 
+    outputBuffer.set(encodeArray, 1);
+    transmitPayload(outputBuffer);
 }
 
-async function triggerLightEffect(effectId) {
-    document.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`eff${effectId}`).classList.add('active');
+function pushWeatherPayload() {
+    const rawWeather = document.getElementById("weatherTextInput").value;
+    const encodeArray = new TextEncoder().encode(rawWeather);
+    const outputBuffer = new Uint8Array(2 + encodeArray.length);
+    outputBuffer[0] = 0x07; 
+    outputBuffer[1] = 0x01; // Default to layout Condition ID 1
+    outputBuffer.set(encodeArray, 2);
+    transmitPayload(outputBuffer);
+}
+
+function syncHardwareClock() {
+    const rightNow = new Date();
+    const currentYear = rightNow.getFullYear();
     
-    document.getElementById('mockupClock').style.display = "none";
-    document.getElementById('mockupCalendar').style.display = "none";
-    document.getElementById('mockupWeather').style.display = "none";
-    document.getElementById('mockupTimer').style.display = "none";
-    
-    const screenEl = document.getElementById('emulatedScreen');
-    const effectsOverlay = document.getElementById('mockupEffects');
-    effectsOverlay.style.display = "block";
-    effectsOverlay.innerHTML = "";
-    clearInterval(localMockupEffectInterval);
-
-    let toggle = false, hueOffset = 0;
-
-    if (effectId === 1) {
-        const strobeColors = ["#ff0000", "#0000ff", "#ffffff", "#ffb400"];
-        let colorIdx = 0;
-        localMockupEffectInterval = setInterval(() => {
-            toggle = !toggle;
-            screenEl.style.background = toggle ? strobeColors[colorIdx] : "#04060b";
-            if(!toggle) colorIdx = (colorIdx + 1) % strobeColors.length;
-        }, 100);
-    } else if (effectId === 2) {
-        localMockupEffectInterval = setInterval(() => { toggle = !toggle; screenEl.style.background = toggle ? "linear-gradient(90deg, #ff0000 50%, #0000ff 50%)" : "linear-gradient(90deg, #0000ff 50%, #ff0000 50%)"; }, 180);
-    } else if (effectId === 3) {
-        effectsOverlay.innerHTML = '<div style="color: #10b981; font-family: monospace; font-size: 8px; text-align: center; margin-top: 4px;">1010101010111101</div>';
-        localMockupEffectInterval = setInterval(() => { if (effectsOverlay.firstChild) effectsOverlay.firstChild.innerHTML = Array.from({length: 3}, () => Math.random().toString(2).substring(2, 18)).join('<br>'); }, 200);
-    } else if (effectId === 4) {
-        localMockupEffectInterval = setInterval(() => { hueOffset = (hueOffset + 5) % 360; screenEl.style.background = `linear-gradient(${hueOffset}deg, #ef4444, #3b82f6, #10b981, #f59e0b)`; }, 40);
-    } else if (effectId === 5) {
-        effectsOverlay.innerHTML = '<div class="eff-horizon"></div>';
-    } else if (effectId === 6) {
-        effectsOverlay.innerHTML = '<div class="eff-vortex"></div>';
-    } else if (effectId === 7) {
-        effectsOverlay.innerHTML = '<div class="eff-stream"></div>';
-    } else if (effectId === 8) {
-        effectsOverlay.innerHTML = '<div class="eff-starburst"></div>';
-    }
-
-    const packet = new Uint8Array([0x09, effectId]);
-    await writeBLE(packet);
+    const payload = [
+        0x04, // Sync Command
+        rightNow.getHours(),
+        rightNow.getMinutes(),
+        rightNow.getSeconds(),
+        rightNow.getDate(),
+        rightNow.getDay(), 
+        (currentYear >> 8) & 0xFF,
+        currentYear & 0xFF,
+        rightNow.getMonth() + 1 // 1-Indexed Translation Month Payload
+    ];
+    transmitPayload(payload);
 }
 </script>
 </body>
