@@ -33,7 +33,7 @@
             border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 25px rgba(59, 130, 246, 0.15);
             transform: rotateX(12deg) rotateY(-8deg); transform-style: preserve-3d; position: relative; padding: 12px; display: flex; align-items: center; justify-content: center;
         }
-        .matrix-screen-emulation { width: 100%; height: 64px; background: #04060b; border-radius: 6px; border: 2px solid #2d3748; box-shadow: inset 0 0 10px #000; position: relative; overflow: hidden; display: flex; align-items: center; padding: 0 10px; }
+        .matrix-screen-emulation { width: 100%; height: 64px; background: #04060b; border-radius: 6px; border: 2px solid #2d3748; box-shadow: inset 0 0 10px #000; position: relative; overflow: hidden; display: flex; align-items: center; padding: 0 10px; transition: background 0.3s ease; }
         .matrix-led-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.7) 100%), repeating-linear-gradient(90deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 3px, rgba(0,0,0,0.5) 4px), repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 3px, rgba(0,0,0,0.5) 4px); pointer-events: none; z-index: 10; }
         .mockup-clock { font-family: monospace; font-size: 26px; font-weight: bold; letter-spacing: 2px; color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); margin: 0 auto; display: block; }
         .mockup-calendar-wrapper { display: none; width: 100%; overflow: hidden; }
@@ -45,9 +45,11 @@
         .mockup-timer-digits { font-family: monospace; font-size: 26px; font-weight: bold; letter-spacing: 2px; color: #fff; text-shadow: 0 0 8px #fff; margin: 0 auto; display: block; }
         .mockup-timer-progress-bg { width: 95%; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 2px; }
         .mockup-timer-progress-fill { width: 100%; height: 100%; background: #00b4ff; box-shadow: 0 0 5px #00b4ff; transition: width 1s linear; }
-        
+        .mockup-alarm-wrapper { display: none; flex-direction: column; width: 100%; justify-content: center; align-items: center; color: var(--neon-orange); }
+        .mockup-alarm-text { font-family: monospace; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 8px var(--neon-orange); }
+
         /* Effects Styles */
-        .mockup-effects-wrapper { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
+        .mockup-effects-wrapper { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; background: transparent; }
         .eff-heartbeat { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #04060b; position: relative; }
         .eff-heartbeat i { font-size: 28px; color: #ef4444; filter: drop-shadow(0 0 8px #ef4444); animation: heartbeatAnim 1.2s infinite cubic-bezier(0.215, 0.610, 0.355, 1); }
         .eff-heartbeat-line { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(239, 68, 68, 0.4) 50%, transparent 100%); width: 30px; height: 100%; animation: scanLine 2s linear infinite; }
@@ -85,7 +87,7 @@
         .config-section.visible { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 10px; font-weight: 700; }
-        input[type="text"], input[type="number"] { width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 16px; }
+        input[type="text"], input[type="number"], input[type="time"] { width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 16px; }
         .btn { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         .btn-disconnect { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
         .btn-secondary { background: rgba(30, 41, 59, 0.8); border: 1px solid var(--glass-border); box-shadow: none; }
@@ -130,6 +132,10 @@
                             <div id="mockupTimerProgress" class="mockup-timer-progress-fill"></div>
                         </div>
                     </div>
+                    <div id="mockupAlarm" class="mockup-alarm-wrapper">
+                        <i class="fa-solid fa-bell" style="font-size: 18px; margin-bottom: 4px;"></i>
+                        <div id="mockupAlarmDigits" class="mockup-alarm-text">07:30</div>
+                    </div>
                     <div id="mockupEffects" class="mockup-effects-wrapper"></div>
                 </div>
             </div>
@@ -157,6 +163,9 @@
             </div>
             <div class="menu-item" onclick="switchMode(6, 'effectsPanel')">
                 <i class="fa-solid fa-wand-magic-sparkles"></i><span>Effects</span>
+            </div>
+            <div class="menu-item" onclick="switchMode(7, 'alarmPanel')">
+                <i class="fa-solid fa-bell"></i><span>Alarm</span>
             </div>
         </div>
 
@@ -214,11 +223,33 @@
                     <button class="effect-btn" id="eff6" onclick="triggerLightEffect(6)"><i class="fa-solid fa-circle-notch" style="color: #ec4899;"></i><span>Plasma Vortex</span></button>
                     <button class="effect-btn" id="eff7" onclick="triggerLightEffect(7)"><i class="fa-solid fa-bezier-curve" style="color: #a855f7;"></i><span>Cyber Stream</span></button>
                     <button class="effect-btn" id="eff8" onclick="triggerLightEffect(8)"><i class="fa-solid fa-star" style="color: #ef4444;"></i><span>Star Burst</span></button>
+                    <button class="effect-btn" id="eff9" onclick="triggerLightEffect(9)"><i class="fa-solid fa-palette" style="color: #10b981;"></i><span>Solid Colour</span></button>
                 </div>
+
+                <div id="solidColorPickerWrapper" style="display: none; margin-bottom: 16px;">
+                    <label>Pick Solid Colour</label>
+                    <div class="slider-wrapper" style="display: flex; align-items: center; gap: 12px;">
+                        <input type="color" id="solidColorInput" value="#ffffff" style="border: none; width: 50px; height: 40px; border-radius: 8px; background: none; cursor: pointer;" oninput="sendSolidColor(this.value)">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Select fill color</span>
+                    </div>
+                </div>
+
                 <label>Effects Intensity Brightness</label>
                 <div class="slider-wrapper">
                     <input type="range" class="brightness-slider" min="5" max="150" value="35" oninput="updateBrightness(this.value)">
                 </div>
+            </div>
+
+            <div id="alarmPanel" class="config-section">
+                <label>Set Daily Alarm Time</label>
+                <input type="time" id="alarmTimeInput" value="07:30">
+                
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; background: rgba(15, 23, 42, 0.5); padding: 12px; border-radius: 12px;">
+                    <input type="checkbox" id="alarmEnableToggle" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="alarmEnableToggle" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 14px;">Enable Alarm State</label>
+                </div>
+
+                <button class="btn" onclick="syncAlarmToDevice()"><i class="fa-solid fa-floppy-disk"></i> Save & Sync Alarm</button>
             </div>
         </div>
     </div>
@@ -357,6 +388,7 @@ async function switchMode(modeId, panelId) {
     }
     document.getElementById('mockupWeather').style.display = (modeId === 4) ? "flex" : "none";
     document.getElementById('mockupTimer').style.display = (modeId === 5) ? "flex" : "none";
+    document.getElementById('mockupAlarm').style.display = (modeId === 7) ? "flex" : "none";
 
     await forceActiveDisplayMode(modeId);
 }
@@ -407,6 +439,31 @@ function updateMockupTimerDisplay() {
     document.getElementById('mockupTimerProgress').style.width = `${timerValSeconds > 0 ? (timerRemainingVal / timerValSeconds) * 100 : 0}%`;
 }
 
+async function sendSolidColor(hexVal) {
+    document.getElementById('emulatedScreen').style.background = hexVal;
+    const r = parseInt(hexVal.substr(1, 2), 16);
+    const g = parseInt(hexVal.substr(3, 2), 16);
+    const b = parseInt(hexVal.substr(5, 2), 16);
+
+    // Command structure: [0x09 (Light effect action), 0x09 (Solid Colour mode), R, G, B]
+    const packet = new Uint8Array([0x09, 0x09, r, g, b]);
+    await writeBLE(packet);
+}
+
+async function syncAlarmToDevice() {
+    const timeVal = document.getElementById('alarmTimeInput').value;
+    const isEnabled = document.getElementById('alarmEnableToggle').checked ? 1 : 0;
+    
+    if (!timeVal) return;
+    const [hours, minutes] = timeVal.split(':').map(Number);
+
+    document.getElementById('mockupAlarmDigits').innerText = timeVal;
+
+    // Command structure: [0x0A (Alarm command), Enabled (1/0), Hour, Minute]
+    const packet = new Uint8Array([0x0A, isEnabled, hours, minutes]);
+    await writeBLE(packet);
+}
+
 async function triggerLightEffect(effectId) {
     document.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(`eff${effectId}`).classList.add('active');
@@ -415,12 +472,24 @@ async function triggerLightEffect(effectId) {
     document.getElementById('mockupCalendar').style.display = "none";
     document.getElementById('mockupWeather').style.display = "none";
     document.getElementById('mockupTimer').style.display = "none";
+    document.getElementById('mockupAlarm').style.display = "none";
     
     const screenEl = document.getElementById('emulatedScreen');
     const effectsOverlay = document.getElementById('mockupEffects');
+    const colorPickerWrapper = document.getElementById('solidColorPickerWrapper');
+
     effectsOverlay.style.display = "block";
     effectsOverlay.innerHTML = "";
     clearInterval(localMockupEffectInterval);
+
+    if (effectId === 9) {
+        colorPickerWrapper.style.display = "block";
+        sendSolidColor(document.getElementById('solidColorInput').value);
+        return;
+    } else {
+        colorPickerWrapper.style.display = "none";
+        screenEl.style.background = "#04060b";
+    }
 
     let toggle = false, hueOffset = 0;
 
